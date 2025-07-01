@@ -1,0 +1,8 @@
+basePath: /
+info:
+  contact: {}
+  description: CRUD Swagger
+  title: CRUD
+  version: "1.0"
+paths: {}
+swagger: "2.0"

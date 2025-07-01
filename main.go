@@ -10,6 +10,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title CRUD
+// @version         1.0
+// @description     CRUD Swagger
+// @BasePath /
+
 func main() {
 	db, _ := utils.DBConnect()
 	godotenv.Load()
