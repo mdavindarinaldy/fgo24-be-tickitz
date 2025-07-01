@@ -12,10 +12,3 @@ type User struct {
 	CreatedAt   time.Time `form:"createdAt" json:"createdAt" db:"created_at" binding:"required"`
 	UpdatedAt   time.Time `form:"updatedAt" json:"updatedAt" db:"updated_at" binding:"required"`
 }
-
-type ResponseUser struct {
-	Id          int    `db:"id" json:"id"`
-	Name        string `form:"name" json:"name" db:"name" binding:"required"`
-	Email       string `form:"email" json:"email" db:"email" binding:"required,email"`
-	PhoneNumber string `form:"phoneNumber" json:"phoneNumber" db:"phone_number" binding:"required"`
-}
