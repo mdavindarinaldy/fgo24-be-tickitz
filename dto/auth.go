@@ -12,3 +12,10 @@ type AuthRegister struct {
 	Password        string `form:"password" json:"password" db:"password" binding:"required"`
 	ConfirmPassword string `form:"confPass" json:"confPass" binding:"required"`
 }
+
+type AuthResetPass struct {
+	Email    string `json:"email" form:"email"`
+	OTP      string `json:"otp" form:"otp"`
+	NewPass  string `json:"newPass" form:"newPass"`
+	ConfPass string `json:"confPass" form:"confPass"`
+}

@@ -41,7 +41,7 @@ func HandleRegister(user dto.AuthRegister) error {
 	return nil
 }
 
-func HandleLogin(user dto.AuthLogin) (User, error) {
+func GetUser(email string) (User, error) {
 	conn, err := utils.DBConnect()
 	if err != nil {
 		return User{}, err
@@ -49,7 +49,7 @@ func HandleLogin(user dto.AuthLogin) (User, error) {
 	defer conn.Close()
 
 	rows, err := conn.Query(context.Background(),
-		`SELECT * FROM users WHERE email=$1`, user.Email)
+		`SELECT * FROM users WHERE email=$1`, email)
 	if err != nil {
 		return User{}, err
 	}
@@ -60,4 +60,20 @@ func HandleLogin(user dto.AuthLogin) (User, error) {
 	}
 
 	return userData, nil
+}
+
+func ResetPass(id int, newPass string) error {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Exec(
+		context.Background(),
+		`UPDATE users SET password = $1 
+		WHERE id = $2`, id, newPass)
+	if err != nil {
+		return err
+	}
+	return nil
 }
