@@ -9,7 +9,7 @@ type Response struct {
 }
 
 type ResponseUser struct {
-	Name        string `form:"name" json:"name" db:"name" binding:"required"`
-	Email       string `form:"email" json:"email" db:"email" binding:"required,email"`
-	PhoneNumber string `form:"phoneNumber" json:"phoneNumber" db:"phone_number" binding:"required"`
+	Name        string `form:"name,omitempty" json:"name,omitempty"`
+	Email       string `form:"email,omitempty" json:"email,omitempty"`
+	PhoneNumber string `form:"phoneNumber,omitempty" json:"phoneNumber,omitempty"`
 }
