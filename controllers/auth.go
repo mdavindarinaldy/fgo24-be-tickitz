@@ -12,6 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Description Register
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body dto.AuthRegister true "User Data"
+// @Success 201 {object} utils.ResponseUser
+// @Failure 400 {object} utils.Response
+// @Failure 500 {object} utils.Response
+// @Router /auth/register [post]
 func AuthRegister(c *gin.Context) {
 	user := dto.AuthRegister{}
 	c.ShouldBind(&user)
@@ -43,6 +52,15 @@ func AuthRegister(c *gin.Context) {
 	})
 }
 
+// @Description Login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body dto.AuthLogin true "User Data"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.Response
+// @Failure 500 {object} utils.Response
+// @Router /auth/login [post]
 func AuthLogin(c *gin.Context) {
 	user := dto.AuthLogin{}
 	c.ShouldBind(&user)
@@ -80,10 +98,20 @@ func AuthLogin(c *gin.Context) {
 	})
 }
 
+type email struct {
+	Email string `json:"email" form:"email"`
+}
+
+// @Description Forgot Pass
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body email true "User Data"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.Response
+// @Failure 500 {object} utils.Response
+// @Router /auth/pass [post]
 func AuthForgotPass(c *gin.Context) {
-	type email struct {
-		Email string `json:"email" form:"email"`
-	}
 	emailUser := email{}
 	c.ShouldBind(&emailUser)
 	userData, err := models.GetUser(emailUser.Email)
@@ -114,6 +142,15 @@ func AuthForgotPass(c *gin.Context) {
 	}
 }
 
+// @Description Reset Pass
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body dto.AuthResetPass true "User Data"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.Response
+// @Failure 500 {object} utils.Response
+// @Router /auth/pass [patch]
 func AuthResetPass(c *gin.Context) {
 	credentials := dto.AuthResetPass{}
 	c.ShouldBind(&credentials)
