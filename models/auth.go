@@ -7,6 +7,8 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func HandleRegister(user dto.AuthRegister) error {
@@ -37,4 +39,25 @@ func HandleRegister(user dto.AuthRegister) error {
 		return err
 	}
 	return nil
+}
+
+func HandleLogin(user dto.AuthLogin) (User, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return User{}, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.Query(context.Background(),
+		`SELECT * FROM users WHERE email=$1`, user.Email)
+	if err != nil {
+		return User{}, err
+	}
+
+	userData, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
+	if err != nil {
+		return User{}, err
+	}
+
+	return userData, nil
 }

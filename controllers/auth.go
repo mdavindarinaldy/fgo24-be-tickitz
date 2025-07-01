@@ -41,5 +41,37 @@ func AuthRegister(c *gin.Context) {
 }
 
 func AuthLogin(c *gin.Context) {
-
+	user := dto.AuthLogin{}
+	c.ShouldBind(&user)
+	userData, err := models.HandleLogin(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+	if userData == (models.User{}) {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "User is not registered",
+		})
+		return
+	}
+	if userData.Password != user.Password {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Wrong password",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Login success!",
+		Result: utils.ResponseUser{
+			Name:        userData.Name,
+			Email:       userData.Email,
+			PhoneNumber: userData.PhoneNumber,
+		},
+	})
 }
