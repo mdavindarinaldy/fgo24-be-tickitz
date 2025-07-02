@@ -1,0 +1,1 @@
+DROP TABLE casts, movies_casts;

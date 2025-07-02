@@ -1,0 +1,1 @@
+DROP TABLE genres, movies_genres;
