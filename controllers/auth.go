@@ -12,14 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Description Register
+// AuthRegister handles user registration
+// @Summary Register a new user
+// @Description Register a new user with name, email, phone number, and password
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body dto.AuthRegister true "User Data"
-// @Success 201 {object} utils.ResponseUser
-// @Failure 400 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Param user body dto.AuthRegister true "User registration data"
+// @Success 201 {object} utils.Response{result=utils.ResponseUser} "User registered successfully"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., email already used, empty data, or password mismatch)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /auth/register [post]
 func AuthRegister(c *gin.Context) {
 	user := dto.AuthRegister{}
@@ -52,14 +54,16 @@ func AuthRegister(c *gin.Context) {
 	})
 }
 
-// @Description Login
+// AuthLogin handles user login
+// @Summary User login
+// @Description Authenticate a user with email and password, returning a token
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body dto.AuthLogin true "User Data"
-// @Success 200 {object} utils.Response
-// @Failure 400 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Param user body dto.AuthLogin true "User login credentials"
+// @Success 200 {object} utils.Response{result=string} "Login successful with token"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., user not registered, wrong password, or token generation failed)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /auth/login [post]
 func AuthLogin(c *gin.Context) {
 	user := dto.AuthLogin{}
@@ -107,14 +111,16 @@ type email struct {
 	Email string `json:"email" form:"email"`
 }
 
-// @Description Forgot Pass
+// AuthForgotPass handles password reset request
+// @Summary Request password reset
+// @Description Send an OTP to the user's email for password reset
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body email true "User Data"
-// @Success 200 {object} utils.Response
-// @Failure 400 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Param user body email true "User email"
+// @Success 200 {object} utils.Response "OTP sent successfully"
+// @Failure 400 {object} utils.Response "Bad request (e.g., email not registered)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /auth/pass [post]
 func AuthForgotPass(c *gin.Context) {
 	emailUser := email{}
@@ -147,14 +153,16 @@ func AuthForgotPass(c *gin.Context) {
 	}
 }
 
-// @Description Reset Pass
+// AuthResetPass handles password reset
+// @Summary Reset user password
+// @Description Reset user password using email, OTP, and new password
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body dto.AuthResetPass true "User Data"
-// @Success 200 {object} utils.Response
-// @Failure 400 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Param user body dto.AuthResetPass true "Password reset data"
+// @Success 200 {object} utils.Response{result=utils.ResponseUser} "Password reset successful"
+// @Failure 400 {object} utils.Response "Bad request (e.g., invalid OTP, password mismatch, or email not registered)"
+// @Failure 500 {object} utils.Response "Internal server error"
 // @Router /auth/pass [patch]
 func AuthResetPass(c *gin.Context) {
 	credentials := dto.AuthResetPass{}
