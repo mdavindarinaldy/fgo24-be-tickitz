@@ -87,14 +87,19 @@ func AuthLogin(c *gin.Context) {
 		})
 		return
 	}
+	token, err := GenerateToken(userData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Failed to generate token",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, utils.Response{
 		Success: true,
 		Message: "Login success!",
-		Result: utils.ResponseUser{
-			Name:        userData.Name,
-			Email:       userData.Email,
-			PhoneNumber: userData.PhoneNumber,
-		},
+		Result:  token,
 	})
 }
 
