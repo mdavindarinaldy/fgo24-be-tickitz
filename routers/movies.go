@@ -7,5 +7,5 @@ import (
 )
 
 func moviesRouter(r *gin.RouterGroup) {
-	r.GET("", controllers.AuthRegister)
+	r.GET("", controllers.GetMovies)
 }
