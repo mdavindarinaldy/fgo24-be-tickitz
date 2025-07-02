@@ -2,10 +2,16 @@ INSERT INTO users (name, email, phone_number, password, role, created_at)
 VALUES
 ('admin','admin@gmail.com','0812345','admin123','admin','2025-07-02');
 
-SELECT m.title, m.synopsis, m.release_date, m.price, m.runtime, m.poster, m.backdrop FROM movies m
+SELECT m.title FROM movies m
 JOIN movies_genres mg ON mg.id_movie = m.id
 JOIN genres g ON g.id = mg.id_genre
 WHERE m.title ILIKE '%a%' AND g.name ILIKE '%Adventure%';
+
+SELECT * FROM (SELECT m.title, m.synopsis, m.release_date, m.price, m.runtime, m.poster, m.backdrop, string_agg(g.name, ', ') AS genres FROM movies m
+JOIN movies_genres mg ON mg.id_movie = m.id
+JOIN genres g ON g.id = mg.id_genre
+GROUP BY m.id)
+WHERE title ILIKE '%%' AND genres ILIKE '%%';
 
 DELETE FROM directors WHERE id=24;
 
