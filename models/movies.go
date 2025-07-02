@@ -56,11 +56,22 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 	}
 
 	rows, err := conn.Query(context.Background(),
-		`SELECT id, name, email, phone_number FROM users 
-		WHERE name ILIKE $1 
-		OR phone_number ILIKE $1
-		OFFSET $2
-		LIMIT 5`, "%"+search+"%", offset)
+		`
+		SELECT * FROM 
+			(SELECT 
+				m.title, m.synopsis, 
+				m.release_date, m.price, 
+				m.runtime, m.poster, m.backdrop, 
+				string_agg(g.name, ', ') AS genres 
+				FROM movies m
+			JOIN movies_genres mg ON mg.id_movie = m.id
+			JOIN genres g ON g.id = mg.id_genre
+			GROUP BY m.id)
+		WHERE title ILIKE $1 AND 
+		genres ILIKE $2
+		OFFSET $3
+		LIMIT 5;
+		`, "%"+search+"%", "%"+filter+"%", offset)
 
 	if err != nil {
 		return []dto.Movie{}, utils.PageData{}, err
