@@ -101,7 +101,7 @@ func FetchDetailMovie(id int) (MovieDetail, error) {
 		return MovieDetail{}, fmt.Errorf("gagal membuat request: %v", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxNTY1OTEwMGQ3M2RlNTI0YTlkN2I4NGUxYWE0OCIsIm5iZiI6MTc0NzUzMDg1MC4xMDA5OTk4LCJzdWIiOiI2ODI5MzQ2MmE5MjZlNzQ1Njk1YjUyZTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1WmayjjDNmTjMaAUPyPvM9LDJ2GTzrF3rVyYdhLN28k"))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "API_KEY"))
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := client.Do(req)
@@ -136,7 +136,7 @@ func FetchDirectors(id int) (MovieDirectors, error) {
 		return MovieDirectors{}, fmt.Errorf("gagal membuat request: %v", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxNTY1OTEwMGQ3M2RlNTI0YTlkN2I4NGUxYWE0OCIsIm5iZiI6MTc0NzUzMDg1MC4xMDA5OTk4LCJzdWIiOiI2ODI5MzQ2MmE5MjZlNzQ1Njk1YjUyZTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1WmayjjDNmTjMaAUPyPvM9LDJ2GTzrF3rVyYdhLN28k"))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "API_KEY"))
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := client.Do(req)
@@ -171,7 +171,7 @@ func FetchCasts(id int) (MovieCasts, error) {
 		return MovieCasts{}, fmt.Errorf("gagal membuat request: %v", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxNTY1OTEwMGQ3M2RlNTI0YTlkN2I4NGUxYWE0OCIsIm5iZiI6MTc0NzUzMDg1MC4xMDA5OTk4LCJzdWIiOiI2ODI5MzQ2MmE5MjZlNzQ1Njk1YjUyZTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1WmayjjDNmTjMaAUPyPvM9LDJ2GTzrF3rVyYdhLN28k"))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", "API_KEY"))
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := client.Do(req)
@@ -198,7 +198,7 @@ func FetchCasts(id int) (MovieCasts, error) {
 }
 
 func Fetch() {
-	apiKey := "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxNTY1OTEwMGQ3M2RlNTI0YTlkN2I4NGUxYWE0OCIsIm5iZiI6MTc0NzUzMDg1MC4xMDA5OTk4LCJzdWIiOiI2ODI5MzQ2MmE5MjZlNzQ1Njk1YjUyZTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1WmayjjDNmTjMaAUPyPvM9LDJ2GTzrF3rVyYdhLN28k"
+	apiKey := "API_KEY"
 
 	if err := fetchNowPlayingMovies(apiKey); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
