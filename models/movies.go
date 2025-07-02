@@ -35,18 +35,19 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 		return []dto.Movie{}, utils.PageData{}, err
 	}
 
-	offset := (page - 1) * 5
+	limit := 10
+	offset := (page - 1) * limit
 	if page == 0 {
 		page = 1
-	} else if ((page * 5) - len(data)) < 5 {
+	} else if ((page * limit) - len(data)) < limit {
 		page = 1
 	}
 
 	totalPage := 0
-	if len(data)%5 != 0 {
-		totalPage = (len(data) / 5) + 1
+	if len(data)%limit != 0 {
+		totalPage = (len(data) / limit) + 1
 	} else {
-		totalPage = len(data) / 5
+		totalPage = len(data) / limit
 	}
 
 	pageData := utils.PageData{
@@ -57,21 +58,43 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 
 	rows, err := conn.Query(context.Background(),
 		`
-		SELECT * FROM 
-			(SELECT 
-				m.title, m.synopsis, 
-				m.release_date, m.price, 
-				m.runtime, m.poster, m.backdrop, 
-				string_agg(g.name, ', ') AS genres 
-				FROM movies m
-			JOIN movies_genres mg ON mg.id_movie = m.id
+		WITH genres_agg AS (
+    		SELECT mg.id_movie, string_agg(DISTINCT g.name, ', ') AS genres
+			FROM movies_genres mg
 			JOIN genres g ON g.id = mg.id_genre
-			GROUP BY m.id)
-		WHERE title ILIKE $1 AND 
-		genres ILIKE $2
+			GROUP BY mg.id_movie
+		),
+		directors_agg AS (
+			SELECT md.id_movie, string_agg(DISTINCT d.name, ', ') AS directors
+			FROM movies_directors md
+			JOIN directors d ON d.id = md.id_director
+			GROUP BY md.id_movie
+		),
+		casts_agg AS (
+			SELECT mc.id_movie, string_agg(DISTINCT c.name, ', ') AS casts
+			FROM movies_casts mc
+			JOIN casts c ON c.id = mc.id_cast
+			GROUP BY mc.id_movie
+		)
+		SELECT 
+			m.title, 
+			m.synopsis, 
+			m.release_date, 
+			m.price, 
+			m.runtime, 
+			m.poster, 
+			m.backdrop, 
+			g.genres, 
+			d.directors, 
+			c.casts
+		FROM movies m
+		LEFT JOIN genres_agg g ON m.id = g.id_movie
+		LEFT JOIN directors_agg d ON m.id = d.id_movie
+		LEFT JOIN casts_agg c ON m.id = c.id_movie
+		WHERE m.title ILIKE $1 AND g.genres ILIKE $2
 		OFFSET $3
-		LIMIT 5;
-		`, "%"+search+"%", "%"+filter+"%", offset)
+		LIMIT $4;
+		`, "%"+search+"%", "%"+filter+"%", offset, limit)
 
 	if err != nil {
 		return []dto.Movie{}, utils.PageData{}, err

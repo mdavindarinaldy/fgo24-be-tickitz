@@ -11,6 +11,6 @@ type Movie struct {
 	Poster      string    `json:"poster" db:"poster"`
 	Backdrop    string    `json:"backdrop" db:"backdrop"`
 	Genres      string    `json:"genres" db:"genres"`
-	Directors   string    `json:"director" db:"director"`
+	Directors   string    `json:"directors" db:"directors"`
 	Casts       string    `json:"casts" db:"casts"`
 }
