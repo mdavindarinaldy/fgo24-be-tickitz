@@ -20,6 +20,7 @@ func main() {
 	godotenv.Load()
 	defer db.Close()
 	r := gin.Default()
+	// utils.Fetch()
 	routers.CombineRouter(r)
 	r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }
