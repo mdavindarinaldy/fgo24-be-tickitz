@@ -47,6 +47,33 @@ func GetMovies(c *gin.Context) {
 	})
 }
 
+// GetDetailMovie retrieves details of a specific movie by ID
+// @Summary Get movie details
+// @Description Retrieve detailed information about a movie by its ID
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Param id path int true "Movie ID" example:"1"
+// @Success 200 {object} utils.Response "Successful response with movie details"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/{id} [get]
+func GetDetailMovie(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	movie, err := models.GetMovie(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to get data",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get data",
+		Result:  movie,
+	})
+}
+
 func GetUpcomingMovies(c *gin.Context) {
 
 }

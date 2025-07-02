@@ -8,4 +8,5 @@ import (
 
 func moviesRouter(r *gin.RouterGroup) {
 	r.GET("", controllers.GetMovies)
+	r.GET("/:id", controllers.GetDetailMovie)
 }
