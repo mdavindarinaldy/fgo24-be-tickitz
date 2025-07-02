@@ -4,6 +4,7 @@ import (
 	"be-tickitz/dto"
 	"be-tickitz/utils"
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -13,6 +14,7 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 	if err != nil {
 		return []dto.Movie{}, utils.PageData{}, err
 	}
+	defer conn.Close()
 
 	type Count struct {
 		Title string `db:"title"`
@@ -76,7 +78,8 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 			JOIN casts c ON c.id = mc.id_cast
 			GROUP BY mc.id_movie
 		)
-		SELECT 
+		SELECT
+			m.id, 
 			m.title, 
 			m.synopsis, 
 			m.release_date, 
@@ -133,6 +136,7 @@ func GetMovie(id int) (dto.Movie, error) {
 			GROUP BY mc.id_movie
 		)
 		SELECT 
+			m.id, 
 			m.title, 
 			m.synopsis, 
 			m.release_date, 
@@ -156,4 +160,57 @@ func GetMovie(id int) (dto.Movie, error) {
 		return dto.Movie{}, err
 	}
 	return movie, nil
+}
+
+func GetUpcomingMovies() ([]dto.Movie, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.Movie{}, err
+	}
+	defer conn.Close()
+	time := time.Now()
+	rows, err := conn.Query(context.Background(),
+		`WITH genres_agg AS (
+    		SELECT mg.id_movie, string_agg(DISTINCT g.name, ', ') AS genres
+			FROM movies_genres mg
+			JOIN genres g ON g.id = mg.id_genre
+			GROUP BY mg.id_movie
+		),
+		directors_agg AS (
+			SELECT md.id_movie, string_agg(DISTINCT d.name, ', ') AS directors
+			FROM movies_directors md
+			JOIN directors d ON d.id = md.id_director
+			GROUP BY md.id_movie
+		),
+		casts_agg AS (
+			SELECT mc.id_movie, string_agg(DISTINCT c.name, ', ') AS casts
+			FROM movies_casts mc
+			JOIN casts c ON c.id = mc.id_cast
+			GROUP BY mc.id_movie
+		)
+		SELECT 
+			m.id, 
+			m.title, 
+			m.synopsis, 
+			m.release_date, 
+			m.price, 
+			m.runtime, 
+			m.poster, 
+			m.backdrop, 
+			g.genres, 
+			d.directors, 
+			c.casts
+		FROM movies m
+		LEFT JOIN genres_agg g ON m.id = g.id_movie
+		LEFT JOIN directors_agg d ON m.id = d.id_movie
+		LEFT JOIN casts_agg c ON m.id = c.id_movie
+		WHERE release_date>$1`, time)
+	if err != nil {
+		return []dto.Movie{}, err
+	}
+	movies, err := pgx.CollectRows[dto.Movie](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.Movie{}, err
+	}
+	return movies, nil
 }

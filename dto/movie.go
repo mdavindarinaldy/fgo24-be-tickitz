@@ -3,6 +3,7 @@ package dto
 import "time"
 
 type Movie struct {
+	Id          int       `json:"id" db:"id"`
 	Title       string    `json:"title" db:"title"`
 	Synopsis    string    `json:"synopsis" db:"synopsis"`
 	ReleaseDate time.Time `json:"releaseDate" db:"release_date"`

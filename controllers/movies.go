@@ -74,6 +74,26 @@ func GetDetailMovie(c *gin.Context) {
 	})
 }
 
+// @Summary Get upcoming movies
+// @Description Retrieve a list of upcoming movies
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.Response "Successful response with upcoming movies"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/upcoming [get]
 func GetUpcomingMovies(c *gin.Context) {
-
+	movies, err := models.GetUpcomingMovies()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to get data",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get data",
+		Result:  movies,
+	})
 }
