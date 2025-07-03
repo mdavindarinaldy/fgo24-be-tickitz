@@ -4,6 +4,7 @@ import (
 	"be-tickitz/dto"
 	"be-tickitz/utils"
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -213,4 +214,102 @@ func GetUpcomingMovies() ([]dto.Movie, error) {
 		return []dto.Movie{}, err
 	}
 	return movies, nil
+}
+
+func GetGenre() ([]dto.SubData, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	defer conn.Close()
+	rows, err := conn.Query(context.Background(), `
+		SELECT id, name FROM genres`)
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	genres, err := pgx.CollectRows[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	return genres, nil
+}
+
+func GetDirectors(search string) ([]dto.SubData, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	defer conn.Close()
+	rows, err := conn.Query(context.Background(), `
+		SELECT id, name FROM directors WHERE name=$1`, "%"+search+"%")
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	genres, err := pgx.CollectRows[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	return genres, nil
+}
+
+func GetCasts(search string) ([]dto.SubData, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	defer conn.Close()
+	rows, err := conn.Query(context.Background(), `
+		SELECT id, name FROM casts WHERE name=$1`, "%"+search+"%")
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	genres, err := pgx.CollectRows[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.SubData{}, err
+	}
+	return genres, nil
+}
+
+func AddMovie(newMovie dto.Movie, adminId int) error {
+	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate.IsZero() || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
+		return errors.New("new movie data should not be empty")
+	}
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	// genres := strings.Split(newMovie.Genres, ", ")
+	// directors := strings.Split(newMovie.Directors, ", ")
+	// casts := strings.Split(newMovie.Casts, ", ")
+
+	_, err = conn.Exec(
+		context.Background(),
+		`
+		INSERT INTO movie 
+			(created_by, title, synopsis, 
+			release_date, price, runtime, 
+			poster, backdrop, created_at)
+		VALUES
+			($1,$2,$3,$4,$5,$6,"-","-",$7);
+		`, adminId, newMovie.Title, newMovie.Synopsis,
+		newMovie.ReleaseDate, newMovie.Price,
+		newMovie.Runtime, time.Now())
+	if err != nil {
+		return err
+	}
+
+	// _, err = conn.Exec(
+	// 	context.Background(),
+	// 	`
+	// 	INSERT INTO movie
+	// 		(created_by, title, synopsis,
+	// 		release_date, price, runtime,
+	// 		poster, backdrop, created_at)
+	// 	VALUES
+	// 		($1,$2,$3,$4,$5,$6,"-","-",$7);
+	// 	`, adminId, newMovie.Title, newMovie.Synopsis,
+	// 	newMovie.ReleaseDate, newMovie.Price,
+	// 	newMovie.Runtime, time.Now())
+	return nil
 }

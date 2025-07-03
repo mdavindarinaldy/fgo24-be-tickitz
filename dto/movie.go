@@ -15,3 +15,8 @@ type Movie struct {
 	Directors   string    `json:"directors" db:"directors"`
 	Casts       string    `json:"casts" db:"casts"`
 }
+
+type SubData struct {
+	Id   int    `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
+}

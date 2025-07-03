@@ -97,3 +97,115 @@ func GetUpcomingMovies(c *gin.Context) {
 		Result:  movies,
 	})
 }
+
+func GetGenres(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	genres, err := models.GetGenre()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal Server Error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get genres list",
+		Result:  genres,
+	})
+}
+
+func GetDirectors(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	search := strings.ToLower(c.DefaultQuery("search", ""))
+	directors, err := models.GetDirectors(search)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal Server Error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get directors list",
+		Result:  directors,
+	})
+}
+
+func GetCasts(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	search := strings.ToLower(c.DefaultQuery("search", ""))
+	casts, err := models.GetCasts(search)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal Server Error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get casts list",
+		Result:  casts,
+	})
+}
+
+func AddMovie(c *gin.Context) {
+	// role, _ := c.Get("role")
+	// if role != "admin" {
+	// 	c.JSON(http.StatusUnauthorized, utils.Response{
+	// 		Success: false,
+	// 		Message: "Unauthorized",
+	// 	})
+	// 	return
+	// }
+	// userId, _ := c.Get("userId")
+	// newMovie := dto.Movie{}
+	// c.ShouldBind(&newMovie)
+	// err := models.AddMovie(newMovie, int(userId.(float64)))
+	// if err != nil {
+	// 	if err.Error() == "new movie data should not be empty" {
+	// 		c.JSON(http.StatusBadRequest, utils.Response{
+	// 			Success: false,
+	// 			Message: err.Error(),
+	// 		})
+	// 		return
+	// 	}
+	// 	c.JSON(http.StatusInternalServerError, utils.Response{
+	// 		Success: false,
+	// 		Message: "Internal server error",
+	// 		Errors:  err.Error(),
+	// 	})
+	// 	return
+	// }
+	// c.JSON(http.StatusCreated, utils.Response{
+	// 	Success: true,
+	// 	Message: "Success to add new movie",
+	// })
+}
+
+func UpdateMovie(c *gin.Context) {}
+
+func DeleteMovie(c *gin.Context) {}
