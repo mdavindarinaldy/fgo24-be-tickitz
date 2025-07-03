@@ -209,10 +209,6 @@ func GetCasts(c *gin.Context) {
 	})
 }
 
-type NewData struct {
-	Name string `json:"name"`
-}
-
 // AddDirectorHandler adds a new director
 // @Summary Add a new director
 // @Description Create a new director with name (admin only)
@@ -220,7 +216,7 @@ type NewData struct {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param director body NewData true "Director data"
+// @Param director body dto.NewData true "Director data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Director created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty director name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
@@ -236,7 +232,7 @@ func AddDirector(c *gin.Context) {
 		return
 	}
 
-	newDirector := NewData{}
+	newDirector := dto.NewData{}
 	c.ShouldBind(&newDirector)
 	data, err := models.AddDirector(newDirector.Name)
 
@@ -269,7 +265,7 @@ func AddDirector(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param cast body NewData true "Cast data"
+// @Param cast body dto.NewData true "Cast data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Cast created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty cast name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
@@ -285,7 +281,7 @@ func AddCast(c *gin.Context) {
 		return
 	}
 
-	newCast := NewData{}
+	newCast := dto.NewData{}
 	c.ShouldBind(&newCast)
 	data, err := models.AddCast(newCast.Name)
 
@@ -318,7 +314,7 @@ func AddCast(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param genre body NewData true "Genre data"
+// @Param genre body dto.NewData true "Genre data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Genre created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty genre name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
@@ -334,7 +330,7 @@ func AddGenre(c *gin.Context) {
 		return
 	}
 
-	newGenre := NewData{}
+	newGenre := dto.NewData{}
 	c.ShouldBind(&newGenre)
 	data, err := models.AddGenre(newGenre.Name)
 
@@ -407,6 +403,17 @@ func AddMovie(c *gin.Context) {
 	})
 }
 
-func UpdateMovie(c *gin.Context) {}
+func UpdateMovie(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	newMovie := dto.NewMovie{}
+	c.ShouldBind(&newMovie)
+}
 
 func DeleteMovie(c *gin.Context) {}

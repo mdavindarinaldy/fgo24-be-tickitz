@@ -29,6 +29,10 @@ type NewMovie struct {
 	Casts       string    `json:"casts" db:"casts"`
 }
 
+type NewData struct {
+	Name string `json:"name"`
+}
+
 type SubData struct {
 	Id   int    `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
