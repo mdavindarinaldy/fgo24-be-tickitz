@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"be-tickitz/dto"
 	"be-tickitz/models"
 	"be-tickitz/utils"
 	"net/http"
@@ -209,6 +208,23 @@ func GetCasts(c *gin.Context) {
 	})
 }
 
+type NewData struct {
+	Name string `json:"name"`
+}
+
+// AddDirectorHandler adds a new director
+// @Summary Add a new director
+// @Description Create a new director with name (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param director body NewData true "Director data"
+// @Success 201 {object} utils.Response{result=dto.SubData} "Director created successfully"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty director name)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /movies/directors [post]
 func AddDirector(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -219,9 +235,9 @@ func AddDirector(c *gin.Context) {
 		return
 	}
 
-	newDirector := dto.SubData{}
+	newDirector := NewData{}
 	c.ShouldBind(&newDirector)
-	data, err := models.AddDirector(newDirector)
+	data, err := models.AddDirector(newDirector.Name)
 
 	if err != nil {
 		if err.Error() == "director name should not be empty" {
@@ -245,6 +261,19 @@ func AddDirector(c *gin.Context) {
 	})
 }
 
+// AddCastHandler adds a new cast
+// @Summary Add a new cast
+// @Description Create a new cast with name (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param cast body NewData true "Cast data"
+// @Success 201 {object} utils.Response{result=dto.SubData} "Cast created successfully"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty cast name)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /movies/casts [post]
 func AddCast(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -255,9 +284,9 @@ func AddCast(c *gin.Context) {
 		return
 	}
 
-	newCast := dto.SubData{}
+	newCast := NewData{}
 	c.ShouldBind(&newCast)
-	data, err := models.AddCast(newCast)
+	data, err := models.AddCast(newCast.Name)
 
 	if err != nil {
 		if err.Error() == "cast name should not be empty" {
@@ -281,6 +310,19 @@ func AddCast(c *gin.Context) {
 	})
 }
 
+// AddGenreHandler adds a new genre
+// @Summary Add a new genre
+// @Description Create a new genre with name (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param genre body NewData true "Genre data"
+// @Success 201 {object} utils.Response{result=dto.SubData} "Genre created successfully"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty genre name)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /genres [post]
 func AddGenre(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -291,9 +333,9 @@ func AddGenre(c *gin.Context) {
 		return
 	}
 
-	newGenre := dto.SubData{}
+	newGenre := NewData{}
 	c.ShouldBind(&newGenre)
-	data, err := models.AddGenre(newGenre)
+	data, err := models.AddGenre(newGenre.Name)
 
 	if err != nil {
 		if err.Error() == "genre name should not be empty" {
