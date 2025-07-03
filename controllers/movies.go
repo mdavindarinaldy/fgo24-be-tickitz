@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"be-tickitz/dto"
 	"be-tickitz/models"
 	"be-tickitz/utils"
 	"net/http"
@@ -74,6 +75,7 @@ func GetDetailMovie(c *gin.Context) {
 	})
 }
 
+// GetUpcomingMovies retrieves a list of movies that has not been released yet
 // @Summary Get upcoming movies
 // @Description Retrieve a list of upcoming movies
 // @Tags Movies
@@ -204,6 +206,114 @@ func GetCasts(c *gin.Context) {
 		Success: true,
 		Message: "Success to get casts list",
 		Result:  casts,
+	})
+}
+
+func AddDirector(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+
+	newDirector := dto.SubData{}
+	c.ShouldBind(&newDirector)
+	data, err := models.AddDirector(newDirector)
+
+	if err != nil {
+		if err.Error() == "director name should not be empty" {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to add new director",
+		Result:  data,
+	})
+}
+
+func AddCast(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+
+	newCast := dto.SubData{}
+	c.ShouldBind(&newCast)
+	data, err := models.AddCast(newCast)
+
+	if err != nil {
+		if err.Error() == "cast name should not be empty" {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to add new cast",
+		Result:  data,
+	})
+}
+
+func AddGenre(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+
+	newGenre := dto.SubData{}
+	c.ShouldBind(&newGenre)
+	data, err := models.AddGenre(newGenre)
+
+	if err != nil {
+		if err.Error() == "genre name should not be empty" {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to add new genre",
+		Result:  data,
 	})
 }
 

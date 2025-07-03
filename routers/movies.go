@@ -13,4 +13,7 @@ func moviesRouter(r *gin.RouterGroup) {
 	r.GET("/genres", controllers.GetGenres)
 	r.GET("/directors", controllers.GetDirectors)
 	r.GET("/casts", controllers.GetCasts)
+	r.POST("/genres", controllers.AddGenre)
+	r.POST("/directors", controllers.AddDirector)
+	r.POST("/casts", controllers.AddCast)
 }

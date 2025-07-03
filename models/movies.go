@@ -313,3 +313,78 @@ func AddMovie(newMovie dto.Movie, adminId int) error {
 	// 	newMovie.Runtime, time.Now())
 	return nil
 }
+
+func AddDirector(data dto.SubData) (dto.SubData, error) {
+	if data.Name == "" {
+		return dto.SubData{}, errors.New("director name should not be empty")
+	}
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	defer conn.Close()
+	var row dto.SubData
+	err = conn.QueryRow(
+		context.Background(),
+		`
+		INSERT INTO directors 
+			(name, created_at)
+		VALUES
+			($1,$2)
+		RETURNING id, name;
+		`, data.Name, time.Now()).Scan(&row)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	return row, nil
+}
+
+func AddCast(data dto.SubData) (dto.SubData, error) {
+	if data.Name == "" {
+		return dto.SubData{}, errors.New("cast name should not be empty")
+	}
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	defer conn.Close()
+	var row dto.SubData
+	err = conn.QueryRow(
+		context.Background(),
+		`
+		INSERT INTO casts 
+			(name, created_at)
+		VALUES
+			($1,$2)
+		RETURNING id, name;
+		`, data.Name, time.Now()).Scan(&row)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	return row, nil
+}
+
+func AddGenre(data dto.SubData) (dto.SubData, error) {
+	if data.Name == "" {
+		return dto.SubData{}, errors.New("genre name should not be empty")
+	}
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	defer conn.Close()
+	var row dto.SubData
+	err = conn.QueryRow(
+		context.Background(),
+		`
+		INSERT INTO genres 
+			(name, created_at)
+		VALUES
+			($1,$2)
+		RETURNING id, name;
+		`, data.Name, time.Now()).Scan(&row)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+	return row, nil
+}
