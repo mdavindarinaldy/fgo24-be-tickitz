@@ -241,7 +241,7 @@ func GetDirectors(search string) ([]dto.SubData, error) {
 	}
 	defer conn.Close()
 	rows, err := conn.Query(context.Background(), `
-		SELECT id, name FROM directors WHERE name=$1`, "%"+search+"%")
+		SELECT id, name FROM directors WHERE name ILIKE $1`, "%"+search+"%")
 	if err != nil {
 		return []dto.SubData{}, err
 	}
@@ -259,7 +259,7 @@ func GetCasts(search string) ([]dto.SubData, error) {
 	}
 	defer conn.Close()
 	rows, err := conn.Query(context.Background(), `
-		SELECT id, name FROM casts WHERE name=$1`, "%"+search+"%")
+		SELECT id, name FROM casts WHERE name ILIKE $1`, "%"+search+"%")
 	if err != nil {
 		return []dto.SubData{}, err
 	}
@@ -314,8 +314,8 @@ func AddMovie(newMovie dto.Movie, adminId int) error {
 	return nil
 }
 
-func AddDirector(data dto.SubData) (dto.SubData, error) {
-	if data.Name == "" {
+func AddDirector(data string) (dto.SubData, error) {
+	if data == "" {
 		return dto.SubData{}, errors.New("director name should not be empty")
 	}
 	conn, err := utils.DBConnect()
@@ -332,15 +332,15 @@ func AddDirector(data dto.SubData) (dto.SubData, error) {
 		VALUES
 			($1,$2)
 		RETURNING id, name;
-		`, data.Name, time.Now()).Scan(&row)
+		`, data, time.Now()).Scan(&row)
 	if err != nil {
 		return dto.SubData{}, err
 	}
 	return row, nil
 }
 
-func AddCast(data dto.SubData) (dto.SubData, error) {
-	if data.Name == "" {
+func AddCast(data string) (dto.SubData, error) {
+	if data == "" {
 		return dto.SubData{}, errors.New("cast name should not be empty")
 	}
 	conn, err := utils.DBConnect()
@@ -357,15 +357,15 @@ func AddCast(data dto.SubData) (dto.SubData, error) {
 		VALUES
 			($1,$2)
 		RETURNING id, name;
-		`, data.Name, time.Now()).Scan(&row)
+		`, data, time.Now()).Scan(&row)
 	if err != nil {
 		return dto.SubData{}, err
 	}
 	return row, nil
 }
 
-func AddGenre(data dto.SubData) (dto.SubData, error) {
-	if data.Name == "" {
+func AddGenre(data string) (dto.SubData, error) {
+	if data == "" {
 		return dto.SubData{}, errors.New("genre name should not be empty")
 	}
 	conn, err := utils.DBConnect()
@@ -382,7 +382,7 @@ func AddGenre(data dto.SubData) (dto.SubData, error) {
 		VALUES
 			($1,$2)
 		RETURNING id, name;
-		`, data.Name, time.Now()).Scan(&row)
+		`, data, time.Now()).Scan(&row)
 	if err != nil {
 		return dto.SubData{}, err
 	}
