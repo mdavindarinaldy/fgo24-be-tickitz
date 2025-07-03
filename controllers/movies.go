@@ -443,4 +443,49 @@ func UpdateMovie(c *gin.Context) {
 	})
 }
 
-func DeleteMovie(c *gin.Context) {}
+// DeleteMovie deletes a movie
+// @Summary Delete a movie
+// @Description Delete a movie by ID, including its associated genres, directors, and casts (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Movie ID"
+// @Success 200 {object} utils.Response "Movie deleted successfully"
+// @Failure 400 {object} utils.Response "Bad request (e.g., invalid movie ID)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/{id} [delete]
+func DeleteMovie(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+
+	movieId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Invalid id",
+		})
+		return
+	}
+
+	err = models.DeleteMovie(movieId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to delete movie",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Delete movie success",
+	})
+}

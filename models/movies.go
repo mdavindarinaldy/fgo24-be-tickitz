@@ -538,3 +538,16 @@ func UpdateMovie(updateMovie dto.NewMovie, movieId int) error {
 
 	return nil
 }
+
+func DeleteMovie(movieId int) error {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Exec(context.Background(), `DELETE FROM movies WHERE id = $1`, movieId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

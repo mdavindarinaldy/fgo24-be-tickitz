@@ -19,4 +19,5 @@ func moviesRouter(r *gin.RouterGroup) {
 	r.POST("/casts", middlewares.VerifyToken(), controllers.AddCast)
 	r.POST("", middlewares.VerifyToken(), controllers.AddMovie)
 	r.PUT("/:id", middlewares.VerifyToken(), controllers.UpdateMovie)
+	r.DELETE("/:id", middlewares.VerifyToken(), controllers.DeleteMovie)
 }
