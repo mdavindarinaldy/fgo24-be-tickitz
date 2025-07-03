@@ -1,1 +1,1 @@
-DROP TABLE genres, movies_genres;
+DROP TABLE movies_genres, genres;

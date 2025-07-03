@@ -1,1 +1,1 @@
-DROP TABLE casts, movies_casts;
+DROP TABLE movies_casts, casts;
