@@ -5,6 +5,8 @@ import (
 	"be-tickitz/utils"
 	"context"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -279,11 +281,17 @@ func AddMovie(newMovie dto.Movie, adminId int) error {
 		return err
 	}
 	defer conn.Close()
-	// genres := strings.Split(newMovie.Genres, ", ")
-	// directors := strings.Split(newMovie.Directors, ", ")
-	// casts := strings.Split(newMovie.Casts, ", ")
+	genres := strings.Split(newMovie.Genres, ", ")
+	directors := strings.Split(newMovie.Directors, ", ")
+	casts := strings.Split(newMovie.Casts, ", ")
 
-	_, err = conn.Exec(
+	type MovieId struct {
+		Id int `json:"id" db:"id"`
+	}
+
+	var newMovieId MovieId
+
+	err = conn.QueryRow(
 		context.Background(),
 		`
 		INSERT INTO movie 
@@ -291,26 +299,47 @@ func AddMovie(newMovie dto.Movie, adminId int) error {
 			release_date, price, runtime, 
 			poster, backdrop, created_at)
 		VALUES
-			($1,$2,$3,$4,$5,$6,"-","-",$7);
+			($1,$2,$3,$4,$5,$6,"-","-",$7)
+		RETURNING id;
 		`, adminId, newMovie.Title, newMovie.Synopsis,
 		newMovie.ReleaseDate, newMovie.Price,
-		newMovie.Runtime, time.Now())
+		newMovie.Runtime, time.Now()).Scan(&newMovieId)
 	if err != nil {
 		return err
 	}
 
-	// _, err = conn.Exec(
-	// 	context.Background(),
-	// 	`
-	// 	INSERT INTO movie
-	// 		(created_by, title, synopsis,
-	// 		release_date, price, runtime,
-	// 		poster, backdrop, created_at)
-	// 	VALUES
-	// 		($1,$2,$3,$4,$5,$6,"-","-",$7);
-	// 	`, adminId, newMovie.Title, newMovie.Synopsis,
-	// 	newMovie.ReleaseDate, newMovie.Price,
-	// 	newMovie.Runtime, time.Now())
+	for _, v := range directors {
+		directorId, _ := strconv.Atoi(v)
+		conn.Exec(context.Background(),
+			`
+			INSERT INTO movies_directors
+				(id_director, id_movie)
+			VALUES
+				($1,$2);
+			`, directorId, newMovieId)
+	}
+
+	for _, v := range casts {
+		castId, _ := strconv.Atoi(v)
+		conn.Exec(context.Background(),
+			`
+			INSERT INTO movies_casts
+				(id_cast, id_movie)
+			VALUES
+				($1,$2);
+			`, castId, newMovieId)
+	}
+
+	for _, v := range genres {
+		genreId, _ := strconv.Atoi(v)
+		conn.Exec(context.Background(),
+			`
+			INSERT INTO movies_genres
+				(id_genre, id_movie)
+			VALUES
+				($1,$2);
+			`, genreId, newMovieId)
+	}
 	return nil
 }
 

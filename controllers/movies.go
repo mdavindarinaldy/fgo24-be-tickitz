@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"be-tickitz/dto"
 	"be-tickitz/models"
 	"be-tickitz/utils"
 	"net/http"
@@ -360,37 +361,37 @@ func AddGenre(c *gin.Context) {
 }
 
 func AddMovie(c *gin.Context) {
-	// role, _ := c.Get("role")
-	// if role != "admin" {
-	// 	c.JSON(http.StatusUnauthorized, utils.Response{
-	// 		Success: false,
-	// 		Message: "Unauthorized",
-	// 	})
-	// 	return
-	// }
-	// userId, _ := c.Get("userId")
-	// newMovie := dto.Movie{}
-	// c.ShouldBind(&newMovie)
-	// err := models.AddMovie(newMovie, int(userId.(float64)))
-	// if err != nil {
-	// 	if err.Error() == "new movie data should not be empty" {
-	// 		c.JSON(http.StatusBadRequest, utils.Response{
-	// 			Success: false,
-	// 			Message: err.Error(),
-	// 		})
-	// 		return
-	// 	}
-	// 	c.JSON(http.StatusInternalServerError, utils.Response{
-	// 		Success: false,
-	// 		Message: "Internal server error",
-	// 		Errors:  err.Error(),
-	// 	})
-	// 	return
-	// }
-	// c.JSON(http.StatusCreated, utils.Response{
-	// 	Success: true,
-	// 	Message: "Success to add new movie",
-	// })
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	userId, _ := c.Get("userId")
+	newMovie := dto.Movie{}
+	c.ShouldBind(&newMovie)
+	err := models.AddMovie(newMovie, int(userId.(float64)))
+	if err != nil {
+		if err.Error() == "new movie data should not be empty" {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+			Errors:  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, utils.Response{
+		Success: true,
+		Message: "Success to add new movie",
+	})
 }
 
 func UpdateMovie(c *gin.Context) {}
