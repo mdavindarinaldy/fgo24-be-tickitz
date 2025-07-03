@@ -276,69 +276,87 @@ func AddMovie(newMovie dto.Movie, adminId int) error {
 	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate.IsZero() || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
 		return errors.New("new movie data should not be empty")
 	}
+
 	conn, err := utils.DBConnect()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	genres := strings.Split(newMovie.Genres, ", ")
-	directors := strings.Split(newMovie.Directors, ", ")
-	casts := strings.Split(newMovie.Casts, ", ")
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(context.Background())
+		} else {
+			tx.Commit(context.Background())
+		}
+	}()
 
 	type MovieId struct {
 		Id int `json:"id" db:"id"`
 	}
-
 	var newMovieId MovieId
 
-	err = conn.QueryRow(
+	err = tx.QueryRow(
 		context.Background(),
 		`
-		INSERT INTO movie 
-			(created_by, title, synopsis, 
-			release_date, price, runtime, 
-			poster, backdrop, created_at)
+		INSERT INTO movies 
+			(created_by, title, synopsis, release_date, price, runtime, poster, backdrop, created_at)
 		VALUES
-			($1,$2,$3,$4,$5,$6,"-","-",$7)
+			($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id;
-		`, adminId, newMovie.Title, newMovie.Synopsis,
-		newMovie.ReleaseDate, newMovie.Price,
-		newMovie.Runtime, time.Now()).Scan(&newMovieId)
+		`, adminId, newMovie.Title, newMovie.Synopsis, newMovie.ReleaseDate, newMovie.Price,
+		newMovie.Runtime, "-", "-", time.Now()).Scan(&newMovieId)
 	if err != nil {
 		return err
 	}
 
+	directors := strings.Split(newMovie.Directors, ", ")
 	for _, v := range directors {
 		directorId, _ := strconv.Atoi(v)
-		conn.Exec(context.Background(),
+		_, err = tx.Exec(context.Background(),
 			`
 			INSERT INTO movies_directors
 				(id_director, id_movie)
 			VALUES
-				($1,$2);
+				($1, $2);
 			`, directorId, newMovieId)
+		if err != nil {
+			return err
+		}
 	}
 
+	casts := strings.Split(newMovie.Casts, ", ")
 	for _, v := range casts {
 		castId, _ := strconv.Atoi(v)
-		conn.Exec(context.Background(),
+		_, err = tx.Exec(context.Background(),
 			`
 			INSERT INTO movies_casts
 				(id_cast, id_movie)
 			VALUES
-				($1,$2);
+				($1, $2);
 			`, castId, newMovieId)
+		if err != nil {
+			return err
+		}
 	}
 
+	genres := strings.Split(newMovie.Genres, ", ")
 	for _, v := range genres {
 		genreId, _ := strconv.Atoi(v)
-		conn.Exec(context.Background(),
+		_, err = tx.Exec(context.Background(),
 			`
 			INSERT INTO movies_genres
 				(id_genre, id_movie)
 			VALUES
-				($1,$2);
+				($1, $2);
 			`, genreId, newMovieId)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
