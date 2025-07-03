@@ -435,3 +435,106 @@ func AddGenre(data string) (dto.SubData, error) {
 	}
 	return row, nil
 }
+
+func UpdateMovie(updateMovie dto.NewMovie, movieId int) error {
+	if updateMovie.Title == "" || updateMovie.Synopsis == "" || updateMovie.ReleaseDate.IsZero() || updateMovie.Price == 0 || updateMovie.Runtime == 0 || updateMovie.Poster == "" || updateMovie.Backdrop == "" || updateMovie.Genres == "" || updateMovie.Directors == "" || updateMovie.Casts == "" {
+		return errors.New("new movie data should not be empty")
+	}
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(context.Background())
+		} else {
+			tx.Commit(context.Background())
+		}
+	}()
+
+	_, err = tx.Exec(
+		context.Background(),
+		`UPDATE movies SET title = $1, synopsis = $2, release_date = $3,
+		price = $4, runtime = $5, poster = "-", backdrop = "-"
+		WHERE id = $6`,
+		updateMovie.Title, updateMovie.Synopsis, updateMovie.ReleaseDate,
+		updateMovie.Price, updateMovie.Runtime, movieId)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`DELETE FROM movies_genres WHERE id_movie = $1`,
+		movieId)
+	if err != nil {
+		return err
+	}
+
+	genres := strings.Split(updateMovie.Genres, ", ")
+	for _, newVal := range genres {
+		genreId, _ := strconv.Atoi(newVal)
+		_, err = tx.Exec(context.Background(),
+			`
+			INSERT INTO movies_genres
+				(id_genre, id_movie)
+			VALUES
+				($1, $2);
+			`, genreId, movieId)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`DELETE FROM movies_directors WHERE id_movie = $1`,
+		movieId)
+	if err != nil {
+		return err
+	}
+
+	directors := strings.Split(updateMovie.Directors, ", ")
+	for _, newVal := range directors {
+		directorId, _ := strconv.Atoi(newVal)
+		_, err = tx.Exec(context.Background(),
+			`
+			INSERT INTO movies_directors
+				(id_director, id_movie)
+			VALUES
+				($1, $2);
+			`, directorId, movieId)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`DELETE FROM movies_casts WHERE id_movie = $1`,
+		movieId)
+	if err != nil {
+		return err
+	}
+
+	casts := strings.Split(updateMovie.Casts, ", ")
+	for _, newVal := range casts {
+		castId, _ := strconv.Atoi(newVal)
+		_, err = tx.Exec(context.Background(),
+			`
+			INSERT INTO movies_casts
+				(id_cast, id_movie)
+			VALUES
+				($1, $2);
+			`, castId, movieId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

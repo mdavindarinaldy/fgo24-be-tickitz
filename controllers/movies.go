@@ -403,6 +403,20 @@ func AddMovie(c *gin.Context) {
 	})
 }
 
+// UpdateMovieHandler updates an existing movie
+// @Summary Update a movie
+// @Description Update a movie's details and associated genres, directors, and casts (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Movie ID"
+// @Param movie body dto.NewMovie true "Movie data"
+// @Success 200 {object} utils.Response "Movie updated successfully"
+// @Failure 400 {object} utils.Response "Bad request (e.g., invalid input)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /movies/{id} [put]
 func UpdateMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -412,8 +426,21 @@ func UpdateMovie(c *gin.Context) {
 		})
 		return
 	}
-	newMovie := dto.NewMovie{}
-	c.ShouldBind(&newMovie)
+	movieId, _ := strconv.Atoi(c.Param("id"))
+	updateMovie := dto.NewMovie{}
+	c.ShouldBind(&updateMovie)
+	err := models.UpdateMovie(updateMovie, movieId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Update movie data success",
+	})
 }
 
 func DeleteMovie(c *gin.Context) {}
