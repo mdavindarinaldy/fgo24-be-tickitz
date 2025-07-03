@@ -2,6 +2,7 @@ package routers
 
 import (
 	"be-tickitz/controllers"
+	"be-tickitz/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,10 +11,10 @@ func moviesRouter(r *gin.RouterGroup) {
 	r.GET("", controllers.GetMovies)
 	r.GET("/:id", controllers.GetDetailMovie)
 	r.GET("/upcoming", controllers.GetUpcomingMovies)
-	r.GET("/genres", controllers.GetGenres)
-	r.GET("/directors", controllers.GetDirectors)
-	r.GET("/casts", controllers.GetCasts)
-	r.POST("/genres", controllers.AddGenre)
-	r.POST("/directors", controllers.AddDirector)
-	r.POST("/casts", controllers.AddCast)
+	r.GET("/genres", middlewares.VerifyToken(), controllers.GetGenres)
+	r.GET("/directors", middlewares.VerifyToken(), controllers.GetDirectors)
+	r.GET("/casts", middlewares.VerifyToken(), controllers.GetCasts)
+	r.POST("/genres", middlewares.VerifyToken(), controllers.AddGenre)
+	r.POST("/directors", middlewares.VerifyToken(), controllers.AddDirector)
+	r.POST("/casts", middlewares.VerifyToken(), controllers.AddCast)
 }
