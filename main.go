@@ -14,7 +14,10 @@ import (
 // @version         1.0
 // @description     CRUD Swagger
 // @BasePath /
-
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token
 func main() {
 	db, _ := utils.DBConnect()
 	godotenv.Load()
