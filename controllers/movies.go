@@ -98,6 +98,17 @@ func GetUpcomingMovies(c *gin.Context) {
 	})
 }
 
+// GetGenres retrieves the list of all genres
+// @Summary Get all genres
+// @Description Retrieve a list of all genres (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with genres list"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/genres [get]
 func GetGenres(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -122,6 +133,18 @@ func GetGenres(c *gin.Context) {
 	})
 }
 
+// GetDirectors retrieves directors with optional search
+// @Summary Get directors
+// @Description Retrieve a list of directors with optional search by name (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param search query string false "Search by director name (case-insensitive)" example:"nolan"
+// @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with directors list"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/directors [get]
 func GetDirectors(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -147,6 +170,18 @@ func GetDirectors(c *gin.Context) {
 	})
 }
 
+// GetCasts retrieves casts with optional search
+// @Summary Get casts
+// @Description Retrieve a list of casts with optional search by name (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param search query string false "Search by cast name (case-insensitive)" example:"dicaprio"
+// @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with casts list"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /movies/casts [get]
 func GetCasts(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
