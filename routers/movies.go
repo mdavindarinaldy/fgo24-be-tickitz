@@ -17,4 +17,5 @@ func moviesRouter(r *gin.RouterGroup) {
 	r.POST("/genres", middlewares.VerifyToken(), controllers.AddGenre)
 	r.POST("/directors", middlewares.VerifyToken(), controllers.AddDirector)
 	r.POST("/casts", middlewares.VerifyToken(), controllers.AddCast)
+	r.POST("", middlewares.VerifyToken(), controllers.AddMovie)
 }

@@ -323,7 +323,7 @@ func AddCast(c *gin.Context) {
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty genre name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /genres [post]
+// @Router /movies/genres [post]
 func AddGenre(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -360,6 +360,19 @@ func AddGenre(c *gin.Context) {
 	})
 }
 
+// AddMovie adds a new movie
+// @Summary Add a new movie
+// @Description Create a new movie with associated genres, directors, and casts (admin only)
+// @Tags Movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param movie body dto.NewMovie true "Movie data"
+// @Success 201 {object} utils.Response "Movie created successfully"
+// @Failure 400 {object} utils.Response "Bad request (e.g., empty movie data)"
+// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /movies [post]
 func AddMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -370,7 +383,7 @@ func AddMovie(c *gin.Context) {
 		return
 	}
 	userId, _ := c.Get("userId")
-	newMovie := dto.Movie{}
+	newMovie := dto.NewMovie{}
 	c.ShouldBind(&newMovie)
 	err := models.AddMovie(newMovie, int(userId.(float64)))
 	if err != nil {

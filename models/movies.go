@@ -272,7 +272,7 @@ func GetCasts(search string) ([]dto.SubData, error) {
 	return genres, nil
 }
 
-func AddMovie(newMovie dto.Movie, adminId int) error {
+func AddMovie(newMovie dto.NewMovie, adminId int) error {
 	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate.IsZero() || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
 		return errors.New("new movie data should not be empty")
 	}
