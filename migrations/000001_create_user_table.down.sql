@@ -1,2 +1,2 @@
-DROP TYPE roles;
 DROP TABLE users;
+DROP TYPE roles;
