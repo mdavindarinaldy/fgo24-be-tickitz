@@ -12,6 +12,7 @@ import (
 func CombineRouter(r *gin.Engine) {
 	authRouter(r.Group("/auth"))
 	moviesRouter(r.Group("/movies"))
+	transactionsRouter(r.Group("/transactions"))
 	docs.SwaggerInfo.BasePath = "/"
 	r.GET("/docs", func(ctx *gin.Context) {
 		ctx.Redirect(http.StatusPermanentRedirect, "/docs/index.html")
