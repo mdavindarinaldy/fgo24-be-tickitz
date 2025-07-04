@@ -25,7 +25,7 @@ func BookTicket() {
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty payment method data)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /transactions/payment-method [post]
+// @Router /transactions/payment-methods [post]
 func AddPaymentMethod(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -55,5 +55,30 @@ func AddPaymentMethod(c *gin.Context) {
 	c.JSON(http.StatusCreated, utils.Response{
 		Success: true,
 		Message: "Payment method successfully been added",
+	})
+}
+
+// GetPaymentMethod retrieves payment method
+// @Summary Get payment method
+// @Description Retrieve a list of payment method
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with payment methods list"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /transactions/payment-methods [get]
+func GetPaymentMethod(c *gin.Context) {
+	data, err := models.GetPaymentMethod()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to get data",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get data",
+		Result:  data,
 	})
 }

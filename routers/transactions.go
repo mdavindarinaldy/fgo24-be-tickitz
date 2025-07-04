@@ -8,5 +8,6 @@ import (
 )
 
 func transactionsRouter(r *gin.RouterGroup) {
-	r.POST("/payment-method", middlewares.VerifyToken(), controllers.AddPaymentMethod)
+	r.POST("/payment-methods", middlewares.VerifyToken(), controllers.AddPaymentMethod)
+	r.GET("/payment-methods", controllers.GetPaymentMethod)
 }
