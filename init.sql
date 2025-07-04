@@ -42,6 +42,8 @@ LEFT JOIN directors_agg d ON m.id = d.id_movie
 LEFT JOIN casts_agg c ON m.id = c.id_movie
 WHERE m.title ILIKE '%a%' AND g.genres ILIKE '%Adventure%';
 
+SELECT id, name FROM casts WHERE name ILIKE '%%';
+
 DELETE FROM directors WHERE id=24;
 
 DELETE FROM movies_casts WHERE id_movie>0;
@@ -110,3 +112,14 @@ VALUES
 (17,19),
 (18,20),
 (1,20);
+
+INSERT INTO payment_methods (name, created_at)
+VALUES
+('OVO',now()),
+('GOPAY',now()),
+('DANA',now()),
+('VISA',now()),
+('G-Pay',now()),
+('Paypal',now()),
+('BCA',now()),
+('BRI',now());
