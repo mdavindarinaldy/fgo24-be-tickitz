@@ -102,7 +102,7 @@ erDiagram
     transactions }o--|| payment_methods: with
     transactions ||--|{ transactions_detail: contains
     showtimes }o--|| movies : scheduled_for
-    transactions_detail ||--o{ showtimes: has
+    transactions_detail }o--|| showtimes: has
 ```
 
     
