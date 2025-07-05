@@ -59,28 +59,34 @@ erDiagram
         int id_movies PK,FK
         timestamp created_at
     }
-    transactions {
-        int id PK
-        int id_users FK
-        int id_movie FK
-        int id_payment_method FK
-        decimal total_amount
-        string location
-        string cinema
-        date showtime
-        timestamp created_at
-    }
-    transactions_detail {
-        int id PK
-        int id_transaction FK
-        string seat
-        timestamp created_at
-    }
     payment_methods {
         int id PK
         string name
         timestamp created_at
         timestamp updated_at
+    }
+    transactions {
+        int id PK
+        int id_users FK
+        int id_payment_method FK
+        decimal total_amount
+        timestamp created_at
+    }
+    showtimes {
+        int id PK
+        int id_movie FK
+        string location
+        string cinema
+        date date
+        time showtime
+        timestamp created_at
+    }
+    transactions_detail {
+        int id PK
+        int id_transaction FK
+        int id_showtime FK
+        string seat
+        timestamp created_at
     }
     movies ||--|{ movies_genres: has
     movies_genres }|--|| genres: belongs_to
@@ -93,8 +99,10 @@ erDiagram
 
     users ||--o{ transactions: create
     users ||--o{ movies : manages
-    transactions }o--|| movies: for
-    transactions_detail }|--|| transactions: contained_by
-    transactions }o--|| payment_methods: with 
-    users 
+    transactions }o--|| payment_methods: with
+    transactions }|--|| transactions_detail: has
+    showtimes }o--|| movies : has
+    transactions_detail ||--o{ showtimes: has
 ```
+
+    
