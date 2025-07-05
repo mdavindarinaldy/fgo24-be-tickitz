@@ -33,8 +33,8 @@ erDiagram
         timestamp updated_at
     }
     movies_genres {
-        int id_genres PK,FK
-        int id_movies PK,FK
+        int id_genre PK,FK
+        int id_movie PK,FK
         timestamp created_at
     }
     directors {
@@ -44,8 +44,8 @@ erDiagram
         timestamp updated_at
     }
     movies_directors {
-        int id_directors PK,FK
-        int id_movies PK,FK
+        int id_director PK,FK
+        int id_movie PK,FK
         timestamp created_at
     }
     casts {
@@ -55,8 +55,8 @@ erDiagram
         timestamp updated_at
     }
     movies_casts {
-        int id_casts PK,FK
-        int id_movies PK,FK
+        int id_cast PK,FK
+        int id_movie PK,FK
         timestamp created_at
     }
     payment_methods {
@@ -67,7 +67,7 @@ erDiagram
     }
     transactions {
         int id PK
-        int id_users FK
+        int id_user FK
         int id_payment_method FK
         decimal total_amount
         timestamp created_at
@@ -97,11 +97,11 @@ erDiagram
     movies ||--|{ movies_casts: has
     movies_casts }|--|| casts: belongs_to
 
-    users ||--o{ transactions: create
+    users ||--o{ transactions: creates
     users ||--o{ movies : manages
     transactions }o--|| payment_methods: with
-    transactions }|--|| transactions_detail: has
-    showtimes }o--|| movies : has
+    transactions ||--|{ transactions_detail: contains
+    showtimes }o--|| movies : scheduled_for
     transactions_detail ||--o{ showtimes: has
 ```
 
