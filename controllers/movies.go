@@ -6,7 +6,6 @@ import (
 	"be-tickitz/utils"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,8 +23,8 @@ import (
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /movies [get]
 func GetMovies(c *gin.Context) {
-	search := strings.ToLower(c.DefaultQuery("search", ""))
-	genre := strings.ToLower(c.DefaultQuery("genre", ""))
+	search := c.DefaultQuery("search", "")
+	genre := c.DefaultQuery("genre", "")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	movies, pageData, err := models.GetMovies(search, genre, page)
 	if err != nil {
@@ -156,7 +155,7 @@ func GetDirectors(c *gin.Context) {
 		})
 		return
 	}
-	search := strings.ToLower(c.DefaultQuery("search", ""))
+	search := c.DefaultQuery("search", "")
 	directors, err := models.GetDirectors(search)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response{
@@ -193,7 +192,7 @@ func GetCasts(c *gin.Context) {
 		})
 		return
 	}
-	search := strings.ToLower(c.DefaultQuery("search", ""))
+	search := c.DefaultQuery("search", "")
 	casts, err := models.GetCasts(search)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response{
