@@ -5,8 +5,8 @@ This project was made by Muhammad Davinda Rinaldy in Kodacademy Training Program
 Endpoint included in this project:
 1. Auth (Register, Login, Forgot Password, Reset Password, Logout)
 2. User (Update Profile/Credentials, Get Profile Data)
-3. Transactions (Add Transaction, Get Transaction History, Get Reserved Seats, Get Payment Method, Add Payment Method)
-4. Movies (Get Movies, Get Detail Movie, Get Upcoming Movie, Get Genres, Get Directors, Get Casts, Add Genre, Add Director, Add Cast, Add Movie, Update Movie, Delete Movie) 
+3. Movies (Get Movies, Get Detail Movie, Get Upcoming Movie, Get Genres, Get Directors, Get Casts, Add Genre, Add Director, Add Cast, Add Movie, Update Movie, Delete Movie) 
+4. Transactions (Add Transaction, Get Transaction History, Get Reserved Seats, Get Payment Method, Add Payment Method, Get Sales Data) 
 
 ## Prerequisites
 
@@ -177,6 +177,7 @@ erDiagram
 | POST  | /transactions | Add new transactions | Yes | User |
 | GET  | /transactions | Retrieve all transactions history per user | Yes | User |
 | GET  | /transactions/seats | Retrieve all reserved seats for specific showtime | Yes | User |
+| GET  | /transactions/sales | Get sales data per movie | Yes | Admin |
 
 ## Dependencies
 This project use:
