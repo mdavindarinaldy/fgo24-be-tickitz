@@ -1,7 +1,8 @@
 ALTER TABLE transactions
 ADD COLUMN cinema VARCHAR(255),
 ADD COLUMN location VARCHAR(255),
-ADD COLUMN showtime TIMESTAMP;
+ADD COLUMN showtime TIMESTAMP,
+ADD COLUMN id_movie INT REFERENCES movies(id);
 
 ALTER TABLE transactions_detail
 DROP CONSTRAINT unique_seat_per_showtime,

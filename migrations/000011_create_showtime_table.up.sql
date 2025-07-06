@@ -6,7 +6,6 @@ CREATE TABLE showtimes (
     date DATE NOT NULL,
     showtime TIME NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
     CONSTRAINT unique_showtime UNIQUE (id_movie, cinema, location, date, showtime)
 );
 
@@ -21,4 +20,6 @@ ADD CONSTRAINT unique_seat_per_showtime UNIQUE (id_showtime, seat);
 ALTER TABLE transactions
 DROP COLUMN cinema,
 DROP COLUMN location,
-DROP COLUMN showtime;
+DROP COLUMN showtime,
+DROP CONSTRAINT transactions_id_movie_fkey,
+DROP COLUMN id_movie;
