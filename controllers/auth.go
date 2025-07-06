@@ -8,8 +8,12 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // AuthRegister handles user registration
@@ -210,6 +214,53 @@ func AuthResetPass(c *gin.Context) {
 				Message: "OTP is wrong or already expired!",
 			})
 		}
-		rdClient.Close()
+		defer rdClient.Close()
 	}
+}
+
+// Logout adds the user's token to the blacklist in Redis with expiration based on token's exp claim
+// @Summary Logout user
+// @Description Invalidates the user's JWT by adding it to a Redis blacklist with expiration based on the token's exp claim
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.Response "Successful logout"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request due to missing or invalid token"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /auth/logout [post]
+func AuthLogout(c *gin.Context) {
+	secretKey := os.Getenv("APP_SECRET")
+	token := strings.Split(c.GetHeader("Authorization"), "Bearer ")
+	rawToken, _ := jwt.Parse(token[1], func(t *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	var expiresAt time.Time = time.Unix(int64(rawToken.Claims.(jwt.MapClaims)["exp"].(float64)), 0)
+	var duration time.Duration = time.Until(expiresAt)
+	if duration <= 0 {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Token already expired",
+		})
+		return
+	}
+
+	redisClient := utils.RedisConnect()
+	defer redisClient.Close()
+
+	err := redisClient.SetEx(context.Background(), "blacklist:"+token[1], "true", duration).Err()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to logout",
+			Errors:  err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Successfully logged out",
+	})
 }
