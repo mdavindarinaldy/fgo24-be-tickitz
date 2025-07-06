@@ -146,3 +146,12 @@ AND cinema = 'hiflix'
 AND location = 'jakarta'
 AND date = '2025-07-13' 
 AND showtime = '18:30:00';
+
+SELECT m.id AS id_movie, m.title, 
+COUNT(td.seat) AS tickets_sold, 
+m.price AS price_per_ticket,
+COUNT(td.seat)*m.price AS total_amount
+FROM transactions_detail td
+JOIN showtimes s ON s.id=td.id_showtime
+JOIN movies m ON m.id=s.id_movie
+GROUP BY m.id;
