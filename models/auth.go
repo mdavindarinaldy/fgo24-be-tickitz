@@ -18,45 +18,68 @@ func HandleRegister(user dto.AuthRegister) error {
 	if user.Password != user.ConfirmPassword {
 		return errors.New("password and confirm password doesn't match")
 	}
+
 	conn, err := utils.DBConnect()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	_, err = conn.Exec(
-		context.Background(),
-		`
-		INSERT INTO users (name, email, phone_number, password, created_at, role)
-		VALUES
-		($1,$2,$3,$4,$5,'user');
-		`,
-		user.Name, user.Email, user.PhoneNumber, user.Password, time.Now())
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(context.Background())
+		} else {
+			tx.Commit(context.Background())
+		}
+	}()
+
+	var userId int
+	err = tx.QueryRow(context.Background(),
+		`INSERT INTO users (email, password, role, created_at)
+         VALUES ($1, $2, 'user', $3)
+         RETURNING id`,
+		user.Email, user.Password, time.Now()).Scan(&userId)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate key") {
 			return errors.New("email already used by another user")
 		}
 		return err
 	}
+
+	_, err = tx.Exec(context.Background(),
+		`INSERT INTO profiles (id_user, name, phone_number, created_at)
+         VALUES ($1, $2, $3, $4)`,
+		userId, user.Name, user.PhoneNumber, time.Now())
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate key") {
+			return errors.New("phone number already used by another user")
+		}
+		return err
+	}
+
 	return nil
 }
 
-func GetUser(email string) (User, error) {
+func GetUser(email string) (UserCredentials, error) {
 	conn, err := utils.DBConnect()
 	if err != nil {
-		return User{}, err
+		return UserCredentials{}, err
 	}
 	defer conn.Close()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT * FROM users WHERE email=$1`, email)
 	if err != nil {
-		return User{}, err
+		return UserCredentials{}, err
 	}
 
-	userData, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
+	userData, err := pgx.CollectOneRow[UserCredentials](rows, pgx.RowToStructByName)
 	if err != nil {
-		return User{}, err
+		return UserCredentials{}, err
 	}
 
 	return userData, nil
@@ -71,7 +94,7 @@ func ResetPass(id int, newPass string) error {
 	_, err = conn.Exec(
 		context.Background(),
 		`UPDATE users SET password = $1 
-		WHERE id = $2`, id, newPass)
+		WHERE id = $2`, newPass, id)
 	if err != nil {
 		return err
 	}

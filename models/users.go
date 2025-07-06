@@ -12,3 +12,12 @@ type User struct {
 	CreatedAt   time.Time `form:"createdAt" json:"createdAt" db:"created_at" binding:"required"`
 	UpdatedAt   time.Time `form:"updatedAt" json:"updatedAt" db:"updated_at" binding:"required"`
 }
+
+type UserCredentials struct {
+	Id        int       `db:"id" json:"id"`
+	Email     string    `form:"email" json:"email" db:"email" binding:"required,email"`
+	Password  string    `form:"password" json:"password" db:"password" binding:"required"`
+	Role      string    `form:"role" json:"role" db:"role" binding:"required"`
+	CreatedAt time.Time `form:"createdAt" json:"createdAt" db:"created_at" binding:"required"`
+	UpdatedAt time.Time `form:"updatedAt" json:"updatedAt" db:"updated_at" binding:"required"`
+}

@@ -32,7 +32,7 @@ func AuthRegister(c *gin.Context) {
 	c.ShouldBind(&user)
 	err := models.HandleRegister(user)
 	if err != nil {
-		if err.Error() == "email already used by another user" || err.Error() == "user data should not be empty" || err.Error() == "password and confirm password doesn't match" {
+		if err.Error() == "email already used by another user" || err.Error() == "phone number already used by another user" || err.Error() == "user data should not be empty" || err.Error() == "password and confirm password doesn't match" {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
 				Message: "Failed to register user",
@@ -81,7 +81,7 @@ func AuthLogin(c *gin.Context) {
 		})
 		return
 	}
-	if userData == (models.User{}) {
+	if userData == (models.UserCredentials{}) {
 		c.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "User is not registered",
@@ -138,16 +138,16 @@ func AuthForgotPass(c *gin.Context) {
 		})
 		return
 	}
-	if userData != (models.User{}) {
+	if userData != (models.UserCredentials{}) {
 		rdClient := utils.RedisConnect()
 		otp := fmt.Sprint(rand.Intn(900) + 100)
 		endpoint := fmt.Sprintf("/auth/otp/%d", userData.Id)
-		rdClient.Set(context.Background(), endpoint, otp, (3 * 60))
+		rdClient.Set(context.Background(), endpoint, otp, (3 * time.Minute))
 		c.JSON(http.StatusOK, utils.Response{
 			Success: true,
 			Message: "OTP has been sent to your email that will expires within 3 minutes",
 		})
-		fmt.Printf("[EMAIL SIMULATION]\n OTP Code for %s to reset password is %s\n", userData.Email, otp)
+		fmt.Printf("[EMAIL SIMULATION]\n OTP Code for %s to reset password is %s\n", emailUser.Email, otp)
 		rdClient.Close()
 	} else {
 		c.JSON(http.StatusBadRequest, utils.Response{
@@ -180,7 +180,7 @@ func AuthResetPass(c *gin.Context) {
 		})
 		return
 	}
-	if userData != (models.User{}) {
+	if userData != (models.UserCredentials{}) {
 		rdClient := utils.RedisConnect()
 		redisEndpoint := fmt.Sprintf("/auth/otp/%d", userData.Id)
 		data := rdClient.Get(context.Background(), redisEndpoint)
@@ -191,13 +191,13 @@ func AuthResetPass(c *gin.Context) {
 					c.JSON(http.StatusInternalServerError, utils.Response{
 						Success: false,
 						Message: "Internal server error",
+						Errors:  err.Error(),
 					})
 				} else {
 					c.JSON(http.StatusOK, utils.Response{
 						Success: true,
 						Message: "Change pass success!",
 						Result: utils.ResponseUser{
-							Name:  userData.Name,
 							Email: userData.Email,
 						},
 					})
