@@ -273,7 +273,7 @@ func GetCasts(search string) ([]dto.SubData, error) {
 }
 
 func AddMovie(newMovie dto.NewMovie, adminId int) error {
-	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate.IsZero() || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
+	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate == "" || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
 		return errors.New("new movie data should not be empty")
 	}
 
@@ -295,10 +295,7 @@ func AddMovie(newMovie dto.NewMovie, adminId int) error {
 		}
 	}()
 
-	type MovieId struct {
-		Id int `json:"id" db:"id"`
-	}
-	var newMovieId MovieId
+	var newMovieId int
 
 	err = tx.QueryRow(
 		context.Background(),
@@ -370,8 +367,8 @@ func AddDirector(data string) (dto.SubData, error) {
 		return dto.SubData{}, err
 	}
 	defer conn.Close()
-	var row dto.SubData
-	err = conn.QueryRow(
+
+	rows, err := conn.Query(
 		context.Background(),
 		`
 		INSERT INTO directors 
@@ -379,11 +376,17 @@ func AddDirector(data string) (dto.SubData, error) {
 		VALUES
 			($1,$2)
 		RETURNING id, name;
-		`, data, time.Now()).Scan(&row)
+		`, data, time.Now())
 	if err != nil {
 		return dto.SubData{}, err
 	}
-	return row, nil
+
+	result, err := pgx.CollectOneRow[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+
+	return result, nil
 }
 
 func AddCast(data string) (dto.SubData, error) {
@@ -395,20 +398,26 @@ func AddCast(data string) (dto.SubData, error) {
 		return dto.SubData{}, err
 	}
 	defer conn.Close()
-	var row dto.SubData
-	err = conn.QueryRow(
+
+	rows, err := conn.Query(
 		context.Background(),
 		`
 		INSERT INTO casts 
 			(name, created_at)
 		VALUES
-			($1,$2)
+			($1, $2)
 		RETURNING id, name;
-		`, data, time.Now()).Scan(&row)
+		`, data, time.Now())
 	if err != nil {
 		return dto.SubData{}, err
 	}
-	return row, nil
+
+	result, err := pgx.CollectOneRow[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+
+	return result, nil
 }
 
 func AddGenre(data string) (dto.SubData, error) {
@@ -420,8 +429,8 @@ func AddGenre(data string) (dto.SubData, error) {
 		return dto.SubData{}, err
 	}
 	defer conn.Close()
-	var row dto.SubData
-	err = conn.QueryRow(
+
+	rows, err := conn.Query(
 		context.Background(),
 		`
 		INSERT INTO genres 
@@ -429,15 +438,21 @@ func AddGenre(data string) (dto.SubData, error) {
 		VALUES
 			($1,$2)
 		RETURNING id, name;
-		`, data, time.Now()).Scan(&row)
+		`, data, time.Now())
 	if err != nil {
 		return dto.SubData{}, err
 	}
-	return row, nil
+
+	result, err := pgx.CollectOneRow[dto.SubData](rows, pgx.RowToStructByName)
+	if err != nil {
+		return dto.SubData{}, err
+	}
+
+	return result, nil
 }
 
 func UpdateMovie(updateMovie dto.NewMovie, movieId int) error {
-	if updateMovie.Title == "" || updateMovie.Synopsis == "" || updateMovie.ReleaseDate.IsZero() || updateMovie.Price == 0 || updateMovie.Runtime == 0 || updateMovie.Poster == "" || updateMovie.Backdrop == "" || updateMovie.Genres == "" || updateMovie.Directors == "" || updateMovie.Casts == "" {
+	if updateMovie.Title == "" || updateMovie.Synopsis == "" || updateMovie.ReleaseDate == "" || updateMovie.Price == 0 || updateMovie.Runtime == 0 || updateMovie.Poster == "" || updateMovie.Backdrop == "" || updateMovie.Genres == "" || updateMovie.Directors == "" || updateMovie.Casts == "" {
 		return errors.New("new movie data should not be empty")
 	}
 	conn, err := utils.DBConnect()
@@ -461,10 +476,10 @@ func UpdateMovie(updateMovie dto.NewMovie, movieId int) error {
 	_, err = tx.Exec(
 		context.Background(),
 		`UPDATE movies SET title = $1, synopsis = $2, release_date = $3,
-		price = $4, runtime = $5, poster = "-", backdrop = "-"
-		WHERE id = $6`,
+		price = $4, runtime = $5, poster = $6, backdrop = $7
+		WHERE id = $8`,
 		updateMovie.Title, updateMovie.Synopsis, updateMovie.ReleaseDate,
-		updateMovie.Price, updateMovie.Runtime, movieId)
+		updateMovie.Price, updateMovie.Runtime, updateMovie.Poster, updateMovie.Backdrop, movieId)
 
 	if err != nil {
 		return err
