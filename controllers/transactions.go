@@ -5,13 +5,10 @@ import (
 	"be-tickitz/models"
 	"be-tickitz/utils"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
-
-func BookTicket() {
-
-}
 
 // AddPaymentMethod adds a new payment method
 // @Summary Add a new payment method
@@ -64,6 +61,7 @@ func AddPaymentMethod(c *gin.Context) {
 // @Tags Transactions
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with payment methods list"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /transactions/payment-methods [get]
@@ -80,5 +78,47 @@ func GetPaymentMethod(c *gin.Context) {
 		Success: true,
 		Message: "Success to get data",
 		Result:  data,
+	})
+}
+
+// AddTransactions creates a new transaction for booking movie tickets
+// @Summary Create a new transaction
+// @Description Creates a transaction for booking movie tickets, including checking or creating a showtime and reserving seats (user only)
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param newTrx body dto.NewTrx true "Transaction data"
+// @Success 201 {object} utils.Response{result=dto.TrxSuccess} "Transaction created successfully"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request due to invalid input"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /transactions [post]
+func AddTransactions(c *gin.Context) {
+	userId, _ := c.Get("userId")
+	newTrx := dto.NewTrx{}
+	c.ShouldBind(&newTrx)
+	showtimeId, transactionId, err := models.AddTransactions(newTrx, int(userId.(float64)))
+	if err != nil {
+		if err.Error() == "transactions data should not be empty" || strings.Contains(err.Error(), "unique_seat_per_showtime") || err.Error() == "invalid showtime format, use HH:MM:SS" || err.Error() == "invalid date format, use YYYY-MM-DD" {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Failed to order ticket",
+				Errors:  err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, utils.Response{
+		Success: true,
+		Message: "Success to order ticket",
+		Result: dto.TrxSuccess{
+			ShowtimeId:    showtimeId,
+			TransactionId: transactionId,
+		},
 	})
 }
