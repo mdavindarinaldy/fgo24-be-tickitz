@@ -995,6 +995,297 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a movie by ID, including its associated genres, directors, and casts (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "Delete a movie",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movie deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (e.g., invalid movie ID)",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access (requires admin role)",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of user's transactions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get transactions history",
+                "responses": {
+                    "200": {
+                        "description": "Successful response with transactions history list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.TransactionHistory"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a transaction for booking movie tickets, including checking or creating a showtime and reserving seats (user only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create a new transaction",
+                "parameters": [
+                    {
+                        "description": "Transaction data",
+                        "name": "newTrx",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NewTrx"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Transaction created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/dto.TrxSuccess"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/payment-methods": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of payment method",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get payment method",
+                "responses": {
+                    "200": {
+                        "description": "Successful response with payment methods list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SubData"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new payment method (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Add a new payment method",
+                "parameters": [
+                    {
+                        "description": "New payment method data",
+                        "name": "movie",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NewData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment method created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (e.g., empty payment method data)",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access (requires admin role)",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         }
     },
@@ -1109,6 +1400,38 @@
                 }
             }
         },
+        "dto.NewTrx": {
+            "type": "object",
+            "properties": {
+                "cinema": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "movieId": {
+                    "type": "integer"
+                },
+                "paymentMethodId": {
+                    "type": "integer"
+                },
+                "seats": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "showtime": {
+                    "type": "string"
+                },
+                "totalAmount": {
+                    "type": "number"
+                }
+            }
+        },
         "dto.SubData": {
             "type": "object",
             "properties": {
@@ -1117,6 +1440,52 @@
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.TransactionHistory": {
+            "type": "object",
+            "properties": {
+                "cinema": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "movieId": {
+                    "type": "integer"
+                },
+                "movieTitle": {
+                    "type": "integer"
+                },
+                "seats": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "showtime": {
+                    "type": "string"
+                },
+                "showtimeId": {
+                    "type": "integer"
+                },
+                "transactionId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.TrxSuccess": {
+            "type": "object",
+            "properties": {
+                "showtimeId": {
+                    "type": "integer"
+                },
+                "transactionId": {
+                    "type": "integer"
                 }
             }
         },
