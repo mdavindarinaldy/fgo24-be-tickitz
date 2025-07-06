@@ -146,6 +146,33 @@ definitions:
       transactionId:
         type: integer
     type: object
+  dto.UpdateUserRequest:
+    properties:
+      confirmPassword:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phoneNumber:
+        type: string
+      profilePicture:
+        type: string
+    type: object
+  dto.UpdateUserResult:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      profilePicture:
+        type: string
+    type: object
   utils.Response:
     properties:
       errors: {}
@@ -215,6 +242,42 @@ paths:
                   type: string
               type: object
       summary: User login
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates the user's JWT by adding it to a Redis blacklist with
+        expiration based on the token's exp claim
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful logout
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad request due to missing or invalid token
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Logout user
       tags:
       - Auth
   /auth/pass:
@@ -994,6 +1057,59 @@ paths:
       summary: Get reserved seats
       tags:
       - Transactions
+  /user:
+    patch:
+      consumes:
+      - application/json
+      description: Updates user credentials (email, password) and/or profile (name,
+        phone number, profile picture)
+      parameters:
+      - description: User update data (all fields optional)
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.UpdateUserResult'
+              type: object
+        "400":
+          description: Bad request (e.g., invalid input, email/phone already used,
+            password mismatch)
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update user data
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token
