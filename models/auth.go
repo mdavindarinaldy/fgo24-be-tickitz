@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matthewhartstonge/argon2"
 )
 
 func HandleRegister(user dto.AuthRegister) error {
@@ -17,6 +18,12 @@ func HandleRegister(user dto.AuthRegister) error {
 	}
 	if user.Password != user.ConfirmPassword {
 		return errors.New("password and confirm password doesn't match")
+	}
+
+	argon := argon2.DefaultConfig()
+	hashedPassword, err := argon.HashEncoded([]byte(user.Password))
+	if err != nil {
+		return errors.New("failed to hash password")
 	}
 
 	conn, err := utils.DBConnect()
@@ -42,7 +49,7 @@ func HandleRegister(user dto.AuthRegister) error {
 		`INSERT INTO users (email, password, role, created_at)
          VALUES ($1, $2, 'user', $3)
          RETURNING id`,
-		user.Email, user.Password, time.Now()).Scan(&userId)
+		user.Email, string(hashedPassword), time.Now()).Scan(&userId)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate key") {
 			return errors.New("email already used by another user")
@@ -86,6 +93,12 @@ func GetUser(email string) (UserCredentials, error) {
 }
 
 func ResetPass(id int, newPass string) error {
+	argon := argon2.DefaultConfig()
+	hashedPassword, err := argon.HashEncoded([]byte(newPass))
+	if err != nil {
+		return err
+	}
+
 	conn, err := utils.DBConnect()
 	if err != nil {
 		return err
@@ -94,7 +107,7 @@ func ResetPass(id int, newPass string) error {
 	_, err = conn.Exec(
 		context.Background(),
 		`UPDATE users SET password = $1 
-		WHERE id = $2`, newPass, id)
+		WHERE id = $2`, hashedPassword, id)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/matthewhartstonge/argon2"
 )
 
 // AuthRegister handles user registration
@@ -88,13 +89,24 @@ func AuthLogin(c *gin.Context) {
 		})
 		return
 	}
-	if userData.Password != user.Password {
+
+	ok, err := argon2.VerifyEncoded([]byte(user.Password), []byte(userData.Password))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal server error",
+			Errors:  err.Error(),
+		})
+		return
+	}
+	if !ok {
 		c.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "Wrong password",
 		})
 		return
 	}
+
 	token, err := GenerateToken(userData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.Response{

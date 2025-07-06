@@ -12,6 +12,8 @@ require (
 	github.com/swaggo/swag v1.16.4
 )
 
+require github.com/matthewhartstonge/argon2 v1.3.2
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
