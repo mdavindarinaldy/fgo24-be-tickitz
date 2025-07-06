@@ -134,3 +134,15 @@ JOIN showtimes s ON s.id = td.id_showtime
 JOIN movies m ON m.id = s.id_movie
 WHERE t.id_user=2
 GROUP BY m.id, t.id, s.id;
+
+SELECT id_showtime, string_agg(seat,', ') AS seats 
+FROM transactions_detail 
+WHERE id_showtime = 1
+GROUP BY id_showtime;
+
+SELECT * FROM showtimes 
+WHERE id_movie = 1 
+AND cinema = 'hiflix'
+AND location = 'jakarta'
+AND date = '2025-07-13' 
+AND showtime = '18:30:00';
