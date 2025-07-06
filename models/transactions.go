@@ -220,3 +220,34 @@ func GetReservedSeat(req dto.ReservedSeatsRequest) (dto.ReservedSeatsResponse, e
 
 	return reservedSeats, err
 }
+
+func GetSalesPerMovie() ([]dto.SalesPerMovie, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.SalesPerMovie{}, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.Query(context.Background(),
+		`
+		SELECT m.id AS id_movie, m.title, 
+		COUNT(td.seat) AS tickets_sold, 
+		m.price AS price_per_ticket,
+		COUNT(td.seat)*m.price AS total_amount 
+		FROM transactions_detail td
+		JOIN showtimes s ON s.id=td.id_showtime
+		JOIN movies m ON m.id=s.id_movie
+		GROUP BY m.id;
+		`)
+
+	if err != nil {
+		return []dto.SalesPerMovie{}, err
+	}
+
+	data, err := pgx.CollectRows[dto.SalesPerMovie](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.SalesPerMovie{}, err
+	}
+
+	return data, nil
+}

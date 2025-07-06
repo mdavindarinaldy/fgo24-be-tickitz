@@ -14,4 +14,5 @@ func transactionsRouter(r *gin.RouterGroup) {
 	r.POST("", controllers.AddTransactions)
 	r.GET("", controllers.GetTransactionsHistory)
 	r.GET("/seats", controllers.GetReservedSeat)
+	r.GET("/sales", controllers.GetSalesPerMovie)
 }

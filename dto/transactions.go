@@ -76,3 +76,11 @@ type ReservedSeatsResponse struct {
 	ShowtimeId int    `json:"id_showtime" db:"id_showtime"`
 	Seats      string `json:"seats" db:"seats"`
 }
+
+type SalesPerMovie struct {
+	MovieId        int     `json:"id_movie" db:"id_movie"`
+	MovieTitle     string  `json:"title" db:"title"`
+	TicketsSold    int     `json:"ticketsSold" db:"tickets_sold"`
+	PricePerTicket float64 `json:"pricePerTicket" db:"price_per_ticket"`
+	TotalAmount    float64 `json:"totalAmount" db:"total_amount"`
+}

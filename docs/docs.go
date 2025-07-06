@@ -1359,6 +1359,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/transactions/sales": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves aggregated sales data for each movie, accessible only to admin users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get sales data per movie",
+                "responses": {
+                    "201": {
+                        "description": "Successful response with sales data per movie",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SalesPerMovie"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/transactions/seats": {
             "get": {
                 "security": [
@@ -1786,6 +1841,26 @@ const docTemplate = `{
                 },
                 "seats": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.SalesPerMovie": {
+            "type": "object",
+            "properties": {
+                "id_movie": {
+                    "type": "integer"
+                },
+                "pricePerTicket": {
+                    "type": "number"
+                },
+                "ticketsSold": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "totalAmount": {
+                    "type": "number"
                 }
             }
         },

@@ -192,3 +192,39 @@ func GetReservedSeat(c *gin.Context) {
 		Result:  res,
 	})
 }
+
+// GetSalesPerMovie retrieves total sales data per movie
+// @Summary Get sales data per movie
+// @Description Retrieves aggregated sales data for each movie, accessible only to admin users
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 201 {object} utils.Response{result=[]dto.SalesPerMovie} "Successful response with sales data per movie"
+// @Failure 401 {object} utils.Response "Unauthorized"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /transactions/sales [get]
+func GetSalesPerMovie(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	result, err := models.GetSalesPerMovie()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Status internal server error",
+			Errors:  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, utils.Response{
+		Success: true,
+		Message: "Success to get sales data",
+		Result:  result,
+	})
+}
