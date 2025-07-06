@@ -131,3 +131,30 @@ func AddTransactions(newTrx dto.NewTrx, userId int) (int, int, error) {
 
 	return showtimeId, transactionId, nil
 }
+
+func GetTransactionsHistory(userId int) ([]dto.TransactionHistory, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return []dto.TransactionHistory{}, err
+	}
+	defer conn.Close()
+	rows, err := conn.Query(context.Background(), `
+		SELECT 
+			m.id AS id_movie, m.title, s.location, 
+    		s.cinema, s.showtime, s.date, s.id AS id_showtime, 
+			t.id AS id_transaction, string_agg(td.seat,', ') AS seats 
+			FROM transactions t
+		JOIN transactions_detail td ON td.id_transaction = t.id
+		JOIN showtimes s ON s.id = td.id_showtime
+		JOIN movies m ON m.id = s.id_movie
+		WHERE t.id_user=$1
+		GROUP BY m.id, t.id, s.id;`, userId)
+	if err != nil {
+		return []dto.TransactionHistory{}, err
+	}
+	trxHistory, err := pgx.CollectRows[dto.TransactionHistory](rows, pgx.RowToStructByName)
+	if err != nil {
+		return []dto.TransactionHistory{}, err
+	}
+	return trxHistory, nil
+}

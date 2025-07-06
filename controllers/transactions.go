@@ -122,3 +122,31 @@ func AddTransactions(c *gin.Context) {
 		},
 	})
 }
+
+// GetTransactionsHistory retrieves list of user's transactions
+// @Summary Get transactions history
+// @Description Retrieve a list of user's transactions
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.Response{result=[]dto.TransactionHistory} "Successful response with transactions history list"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /transactions [get]
+func GetTransactionsHistory(c *gin.Context) {
+	userId, _ := c.Get("userId")
+	trxHistory, err := models.GetTransactionsHistory(int(userId.(float64)))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to get data",
+			Errors:  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get data",
+		Result:  trxHistory,
+	})
+}

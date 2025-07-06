@@ -12,4 +12,5 @@ func transactionsRouter(r *gin.RouterGroup) {
 	r.POST("/payment-methods", controllers.AddPaymentMethod)
 	r.GET("/payment-methods", controllers.GetPaymentMethod)
 	r.POST("", controllers.AddTransactions)
+	r.GET("", controllers.GetTransactionsHistory)
 }
