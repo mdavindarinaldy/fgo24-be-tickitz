@@ -1294,6 +1294,119 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/transactions/seats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of reserved seats for a specific showtime identified by movie ID, cinema, location, date, and showtime",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get reserved seats",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "id_movie",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cinema name",
+                        "name": "cinema",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cinema location",
+                        "name": "location",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Showtime date (YYYY-MM-DD)",
+                        "name": "date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Showtime (HH:MM:SS)",
+                        "name": "showtime",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with reserved seats",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/dto.ReservedSeatsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1360,6 +1473,22 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CustomDate": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CustomTime": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
                     "type": "string"
                 }
             }
@@ -1439,6 +1568,17 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ReservedSeatsResponse": {
+            "type": "object",
+            "properties": {
+                "id_showtime": {
+                    "type": "integer"
+                },
+                "seats": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.SubData": {
             "type": "object",
             "properties": {
@@ -1457,7 +1597,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "date": {
-                    "type": "string"
+                    "$ref": "#/definitions/dto.CustomDate"
                 },
                 "location": {
                     "type": "string"
@@ -1466,16 +1606,13 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "movieTitle": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "seats": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 },
                 "showtime": {
-                    "type": "string"
+                    "$ref": "#/definitions/dto.CustomTime"
                 },
                 "showtimeId": {
                     "type": "integer"

@@ -63,3 +63,16 @@ type TrxHistory struct {
 	ShowtimeId    int       `json:"showtimeId" db:"id_showtime"`
 	TransactionId int       `json:"transactionId" db:"id_transaction"`
 }
+
+type ReservedSeatsRequest struct {
+	MovieId  int    `form:"id_movie" binding:"required"`
+	Cinema   string `form:"cinema" binding:"required"`
+	Location string `form:"location" binding:"required"`
+	Date     string `form:"date" binding:"required"`
+	Showtime string `form:"showtime" binding:"required"`
+}
+
+type ReservedSeatsResponse struct {
+	ShowtimeId int    `json:"id_showtime" db:"id_showtime"`
+	Seats      string `json:"seats" db:"seats"`
+}

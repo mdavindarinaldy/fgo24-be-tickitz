@@ -150,3 +150,45 @@ func GetTransactionsHistory(c *gin.Context) {
 		Result:  trxHistory,
 	})
 }
+
+// GetReservedSeat retrieves reserved seats for a showtime
+// @Summary Get reserved seats
+// @Description Retrieves a list of reserved seats for a specific showtime identified by movie ID, cinema, location, date, and showtime
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id_movie query int true "Movie ID"
+// @Param cinema query string true "Cinema name"
+// @Param location query string true "Cinema location"
+// @Param date query string true "Showtime date (YYYY-MM-DD)"
+// @Param showtime query string true "Showtime (HH:MM:SS)"
+// @Success 200 {object} utils.Response{result=dto.ReservedSeatsResponse} "Successful response with reserved seats"
+// @Failure 400 {object} utils.Response{errors=string} "Bad request due to invalid input"
+// @Failure 500 {object} utils.Response{errors=string} "Internal server error"
+// @Router /transactions/seats [get]
+func GetReservedSeat(c *gin.Context) {
+	var req dto.ReservedSeatsRequest
+	c.ShouldBind(&req)
+	res, err := models.GetReservedSeat(req)
+	if err != nil {
+		if err.Error() == "all fields must be provided" {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Failed to get data reserved seats",
+				Errors:  err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to get data reserved seats",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Success to get data reserved seats",
+		Result:  res,
+	})
+}

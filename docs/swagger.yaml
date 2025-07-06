@@ -45,6 +45,16 @@ definitions:
       otp:
         type: string
     type: object
+  dto.CustomDate:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  dto.CustomTime:
+    properties:
+      time.Time:
+        type: string
+    type: object
   dto.NewData:
     properties:
       name:
@@ -94,6 +104,13 @@ definitions:
       totalAmount:
         type: number
     type: object
+  dto.ReservedSeatsResponse:
+    properties:
+      id_showtime:
+        type: integer
+      seats:
+        type: string
+    type: object
   dto.SubData:
     properties:
       id:
@@ -106,19 +123,17 @@ definitions:
       cinema:
         type: string
       date:
-        type: string
+        $ref: '#/definitions/dto.CustomDate'
       location:
         type: string
       movieId:
         type: integer
       movieTitle:
-        type: integer
-      seats:
-        items:
-          type: string
-        type: array
-      showtime:
         type: string
+      seats:
+        type: string
+      showtime:
+        $ref: '#/definitions/dto.CustomTime'
       showtimeId:
         type: integer
       transactionId:
@@ -910,6 +925,73 @@ paths:
       security:
       - BearerAuth: []
       summary: Add a new payment method
+      tags:
+      - Transactions
+  /transactions/seats:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of reserved seats for a specific showtime identified
+        by movie ID, cinema, location, date, and showtime
+      parameters:
+      - description: Movie ID
+        in: query
+        name: id_movie
+        required: true
+        type: integer
+      - description: Cinema name
+        in: query
+        name: cinema
+        required: true
+        type: string
+      - description: Cinema location
+        in: query
+        name: location
+        required: true
+        type: string
+      - description: Showtime date (YYYY-MM-DD)
+        in: query
+        name: date
+        required: true
+        type: string
+      - description: Showtime (HH:MM:SS)
+        in: query
+        name: showtime
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with reserved seats
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.ReservedSeatsResponse'
+              type: object
+        "400":
+          description: Bad request due to invalid input
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get reserved seats
       tags:
       - Transactions
 securityDefinitions:

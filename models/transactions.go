@@ -180,3 +180,43 @@ func GetTransactionsHistory(userId int) ([]dto.TransactionHistory, error) {
 
 	return trxHistory, nil
 }
+
+func GetReservedSeat(req dto.ReservedSeatsRequest) (dto.ReservedSeatsResponse, error) {
+	if req.MovieId == 0 || req.Cinema == "" || req.Location == "" || req.Date == "" || req.Showtime == "" {
+		return dto.ReservedSeatsResponse{}, errors.New("all fields must be provided")
+	}
+
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return dto.ReservedSeatsResponse{}, err
+	}
+	defer conn.Close()
+
+	var showtimeID int
+	err = conn.QueryRow(context.Background(),
+		`SELECT id FROM showtimes 
+         WHERE id_movie = $1 
+         AND cinema = $2 
+         AND location = $3 
+         AND date = $4 
+         AND showtime = $5`,
+		req.MovieId, req.Cinema, req.Location, req.Date, req.Showtime).Scan(&showtimeID)
+	if err != nil {
+		return dto.ReservedSeatsResponse{}, err
+	}
+	row, err := conn.Query(context.Background(), `
+		SELECT id_showtime, string_agg(seat,', ') AS seats 
+		FROM transactions_detail 
+		WHERE id_showtime = $1
+		GROUP BY id_showtime`, showtimeID)
+	if err != nil {
+		return dto.ReservedSeatsResponse{}, err
+	}
+
+	reservedSeats, err := pgx.CollectOneRow[dto.ReservedSeatsResponse](row, pgx.RowToStructByName)
+	if err != nil {
+		return dto.ReservedSeatsResponse{}, err
+	}
+
+	return reservedSeats, err
+}
