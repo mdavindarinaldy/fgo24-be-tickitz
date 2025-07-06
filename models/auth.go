@@ -29,7 +29,7 @@ func HandleRegister(user dto.AuthRegister) error {
 		`
 		INSERT INTO users (name, email, phone_number, password, created_at, role)
 		VALUES
-		($1,$2,$3,$4,$5,"user");
+		($1,$2,$3,$4,$5,'user');
 		`,
 		user.Name, user.Email, user.PhoneNumber, user.Password, time.Now())
 	if err != nil {
