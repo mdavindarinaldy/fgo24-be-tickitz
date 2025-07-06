@@ -123,3 +123,14 @@ VALUES
 ('Paypal',now()),
 ('BCA',now()),
 ('BRI',now());
+
+SELECT 
+    m.id AS id_movie, m.title, s.location, 
+    s.cinema, s.date, s.id AS id_showtime, 
+    t.id AS id_transactions, t.id_user, string_agg(td.seat,', ') AS seats 
+    FROM transactions t
+JOIN transactions_detail td ON td.id_transaction = t.id
+JOIN showtimes s ON s.id = td.id_showtime
+JOIN movies m ON m.id = s.id_movie
+WHERE t.id_user=2
+GROUP BY m.id, t.id, s.id;
