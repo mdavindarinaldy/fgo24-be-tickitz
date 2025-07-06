@@ -13,7 +13,7 @@ func GenerateToken(user models.User) (string, error) {
 		"userId": user.Id,
 		"role":   user.Role,
 		"iat":    time.Now().Unix(),
-		"exp":    time.Now().Add(15 * time.Minute).Unix(),
+		"exp":    time.Now().Add(1 * time.Hour).Unix(),
 	})
 	token, err := generateToken.SignedString([]byte(os.Getenv("APP_SECRET")))
 	if err != nil {

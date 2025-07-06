@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"be-tickitz/utils"
+	"context"
 	"net/http"
 	"os"
 	"strings"
@@ -23,6 +24,21 @@ func VerifyToken() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
+		redisClient := utils.RedisConnect()
+		defer redisClient.Close()
+
+		blacklisted, _ := redisClient.Get(context.Background(), "blacklist:"+token[1]).Result()
+		if blacklisted == "true" {
+			c.JSON(http.StatusUnauthorized, utils.Response{
+				Success: false,
+				Message: "Unauthorized",
+				Errors:  "Token has been blacklisted",
+			})
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
 		rawToken, err := jwt.Parse(token[1], func(t *jwt.Token) (any, error) {
 			return []byte(secretKey), nil
 		})
@@ -34,6 +50,7 @@ func VerifyToken() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
 		userId := rawToken.Claims.(jwt.MapClaims)["userId"]
 		role := rawToken.Claims.(jwt.MapClaims)["role"]
 		c.Set("userId", userId)
