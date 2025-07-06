@@ -184,6 +184,9 @@ This project use:
 2. jwt v5 from github.com/golang-jwt/jwt/v5 : for creating, parsing and validating JSON Web Tokens (JWT) for authentication and authorization
 3. pgx from github.com/jackc/pgx/v5 : for direct database interactions (PostgreSQL)
 4. godotenv from github.com/joho/godotenv : for loading environment variables from a .env file into the application
+5. go-redis from github.com/redis/go-redis/v9 v9.11.0: for interacting with Redis, enabling caching, session management, and OTP storage.
+6. swaggo from github.com/swaggo/swag v1.16.4, github.com/swaggo/files v1.0.1, and github.com/swaggo/gin-swagger v1.6.0: for generating and serving Swagger API documentation for the application's endpoints.
+7. argon2 from github.com/matthewhartstonge/argon2 v1.3.2: for securely hashing and verifying passwords using the Argon2 algorithm.
 
 ## Basic Information
 This project is part of training in Kodacademy Bootcamp Batch 2 made by Muhammad Davinda Rinaldy
