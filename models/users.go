@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/matthewhartstonge/argon2"
 )
 
@@ -31,7 +32,7 @@ type UserCredentials struct {
 	UpdatedAt time.Time `form:"updatedAt" json:"updatedAt" db:"updated_at" binding:"required"`
 }
 
-func UpdateUserProfile(userId int, request dto.UpdateUserRequest) (dto.UpdateUserResult, error) {
+func UpdateUserData(userId int, request dto.UpdateUserRequest) (dto.UpdateUserResult, error) {
 	conn, err := utils.DBConnect()
 	if err != nil {
 		return dto.UpdateUserResult{}, err
@@ -170,4 +171,25 @@ func UpdateUserProfile(userId int, request dto.UpdateUserRequest) (dto.UpdateUse
 	}
 
 	return userData, nil
+}
+
+func GetProfileUser(userId int) (dto.UpdateUserResult, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return dto.UpdateUserResult{}, err
+	}
+	defer conn.Close()
+	row, err := conn.Query(context.Background(), `
+		SELECT p.name, u.email, p.phone_number, p.profile_picture 
+		FROM profiles p
+		JOIN users u ON u.id = p.id_user
+		WHERE p.id=$1`, userId)
+	if err != nil {
+		return dto.UpdateUserResult{}, err
+	}
+	result, err := pgx.CollectOneRow[dto.UpdateUserResult](row, pgx.RowToStructByName)
+	if err != nil {
+		return dto.UpdateUserResult{}, err
+	}
+	return result, nil
 }
