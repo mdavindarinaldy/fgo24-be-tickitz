@@ -4,12 +4,19 @@
 erDiagram
     direction LR
     users {
-        int id PK
-        string name
+        int id PK      
         string email
-        string phone_number
         string password
         enum role
+        timestamp created_at
+        timestamp updated_at
+    }
+    profiles {
+        int id PK
+        int id_user FK
+        string name
+        string phone_number
+        string profile_picture
         timestamp created_at
         timestamp updated_at
     }
@@ -103,6 +110,8 @@ erDiagram
     transactions ||--|{ transactions_detail: contains
     showtimes }o--|| movies : scheduled_for
     transactions_detail }o--|| showtimes: has
+
+    users ||--|| profiles: has
 ```
 
     
