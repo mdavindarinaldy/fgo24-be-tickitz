@@ -152,9 +152,31 @@ func GetTransactionsHistory(userId int) ([]dto.TransactionHistory, error) {
 	if err != nil {
 		return []dto.TransactionHistory{}, err
 	}
-	trxHistory, err := pgx.CollectRows[dto.TransactionHistory](rows, pgx.RowToStructByName)
-	if err != nil {
-		return []dto.TransactionHistory{}, err
+
+	// trxHistory, err := pgx.CollectRows[dto.TransactionHistory](rows, pgx.RowToStructByName)
+	// if err != nil {
+	// 	return []dto.TransactionHistory{}, err
+	// }
+
+	var trxHistory []dto.TransactionHistory
+	for rows.Next() {
+		var currentTrx dto.TrxHistory
+		err := rows.Scan(&currentTrx.MovieId, &currentTrx.MovieTitle, &currentTrx.Location, &currentTrx.Cinema, &currentTrx.Showtime, &currentTrx.Date, &currentTrx.ShowtimeId, &currentTrx.TransactionId, &currentTrx.Seats)
+		if err != nil {
+			return nil, err
+		}
+		trxHistory = append(trxHistory, dto.TransactionHistory{
+			MovieId:       currentTrx.MovieId,
+			MovieTitle:    currentTrx.MovieTitle,
+			Location:      currentTrx.Location,
+			Cinema:        currentTrx.Cinema,
+			Showtime:      dto.CustomTime{Time: currentTrx.Showtime},
+			Date:          dto.CustomDate{Time: currentTrx.Date},
+			ShowtimeId:    currentTrx.ShowtimeId,
+			TransactionId: currentTrx.TransactionId,
+			Seats:         currentTrx.Seats,
+		})
 	}
+
 	return trxHistory, nil
 }
