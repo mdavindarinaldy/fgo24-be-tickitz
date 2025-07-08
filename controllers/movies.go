@@ -91,19 +91,38 @@ func GetMovies(c *gin.Context) {
 // @Router /movies/{id} [get]
 func GetDetailMovie(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	movie, err := models.GetMovie(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Response{
-			Success: false,
-			Message: "Failed to get data",
+
+	rdClient := utils.RedisConnect()
+	endpoint := fmt.Sprintf("/movies/:%d", id)
+
+	result := rdClient.Exists(context.Background(), endpoint)
+	if result.Val() == 0 {
+		movie, err := models.GetMovie(id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to get data",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get data",
+			Result:  movie,
 		})
-		return
+		encodedMovie, _ := json.Marshal(movie)
+		rdClient.Set(context.Background(), endpoint, encodedMovie, 0)
+	} else {
+		data := rdClient.Get(context.Background(), endpoint)
+		str := data.Val()
+		movie := dto.Movie{}
+		json.Unmarshal([]byte(str), &movie)
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get data",
+			Result:  movie,
+		})
 	}
-	c.JSON(http.StatusOK, utils.Response{
-		Success: true,
-		Message: "Success to get data",
-		Result:  movie,
-	})
 }
 
 // GetUpcomingMovies retrieves a list of movies that has not been released yet
