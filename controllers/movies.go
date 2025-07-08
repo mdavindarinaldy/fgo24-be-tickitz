@@ -135,19 +135,37 @@ func GetDetailMovie(c *gin.Context) {
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /movies/upcoming [get]
 func GetUpcomingMovies(c *gin.Context) {
-	movies, err := models.GetUpcomingMovies()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Response{
-			Success: false,
-			Message: "Failed to get data",
+	rdClient := utils.RedisConnect()
+	endpoint := "/movies/upcoming"
+	result := rdClient.Exists(context.Background(), endpoint)
+
+	if result.Val() == 0 {
+		movies, err := models.GetUpcomingMovies()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to get data",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get data",
+			Result:  movies,
 		})
-		return
+		encodedMovies, _ := json.Marshal(movies)
+		rdClient.Set(context.Background(), endpoint, encodedMovies, 0)
+	} else {
+		data := rdClient.Get(context.Background(), endpoint)
+		str := data.Val()
+		movies := []dto.Movie{}
+		json.Unmarshal([]byte(str), &movies)
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get data",
+			Result:  movies,
+		})
 	}
-	c.JSON(http.StatusOK, utils.Response{
-		Success: true,
-		Message: "Success to get data",
-		Result:  movies,
-	})
 }
 
 // GetGenres retrieves the list of all genres
