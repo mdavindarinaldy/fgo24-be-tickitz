@@ -469,6 +469,12 @@ func AddMovie(c *gin.Context) {
 		Success: true,
 		Message: "Success to add new movie",
 	})
+	rdClient := utils.RedisConnect()
+	keys := rdClient.Keys(context.Background(), "/movies?*").Val()
+	for _, key := range keys {
+		rdClient.Del(context.Background(), key)
+	}
+	rdClient.Del(context.Background(), "/movies/upcoming")
 }
 
 // UpdateMovieHandler updates an existing movie
@@ -509,6 +515,12 @@ func UpdateMovie(c *gin.Context) {
 		Success: true,
 		Message: "Update movie data success",
 	})
+	rdClient := utils.RedisConnect()
+	keys := rdClient.Keys(context.Background(), "/movies?*").Val()
+	for _, key := range keys {
+		rdClient.Del(context.Background(), key)
+	}
+	rdClient.Del(context.Background(), "/movies/upcoming")
 }
 
 // DeleteMovie deletes a movie
@@ -556,4 +568,11 @@ func DeleteMovie(c *gin.Context) {
 		Success: true,
 		Message: "Delete movie success",
 	})
+	rdClient := utils.RedisConnect()
+	keys := rdClient.Keys(context.Background(), "/movies?*").Val()
+	for _, key := range keys {
+		rdClient.Del(context.Background(), key)
+	}
+	rdClient.Del(context.Background(), "/movies/upcoming")
+	rdClient.Del(context.Background(), fmt.Sprintf("/movies/upcoming/%d", movieId))
 }
