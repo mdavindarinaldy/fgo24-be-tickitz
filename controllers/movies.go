@@ -4,6 +4,9 @@ import (
 	"be-tickitz/dto"
 	"be-tickitz/models"
 	"be-tickitz/utils"
+	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,25 +29,54 @@ func GetMovies(c *gin.Context) {
 	search := c.DefaultQuery("search", "")
 	genre := c.DefaultQuery("genre", "")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	movies, pageData, err := models.GetMovies(search, genre, page)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Response{
-			Success: false,
-			Message: "Internal server error",
-			Errors:  err.Error(),
+
+	rdClient := utils.RedisConnect()
+	endpoint := fmt.Sprintf("/movies?search=%s&genre=%s&page=%d", search, genre, page)
+	pagepoint := fmt.Sprintf("/movies?search=%s&genre=%s&pagedata=%d", search, genre, page)
+	result := rdClient.Exists(context.Background(), endpoint)
+	if result.Val() == 0 {
+		movies, pageData, err := models.GetMovies(search, genre, page)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Internal server error",
+				Errors:  err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get movies",
+			PageInfo: utils.PageData{
+				CurrentPage: pageData.CurrentPage,
+				TotalPage:   pageData.TotalPage,
+				TotalData:   pageData.TotalData,
+			},
+			Result: movies,
 		})
-		return
+		encodedMovies, _ := json.Marshal(movies)
+		encodedPageData, _ := json.Marshal(pageData)
+		rdClient.Set(context.Background(), endpoint, encodedMovies, 0)
+		rdClient.Set(context.Background(), pagepoint, encodedPageData, 0)
+	} else {
+		data := rdClient.Get(context.Background(), endpoint)
+		page := rdClient.Get(context.Background(), pagepoint)
+
+		str := data.Val()
+		movies := []dto.Movie{}
+		pageData := page.Val()
+		pageResult := []utils.PageData{}
+
+		json.Unmarshal([]byte(str), &movies)
+		json.Unmarshal([]byte(pageData), &pageResult)
+
+		c.JSON(http.StatusOK, utils.Response{
+			Success:  true,
+			Message:  "Success to get movies",
+			PageInfo: pageResult,
+			Result:   movies,
+		})
 	}
-	c.JSON(http.StatusOK, utils.Response{
-		Success: true,
-		Message: "Success to get movies",
-		PageInfo: utils.PageData{
-			CurrentPage: pageData.CurrentPage,
-			TotalPage:   pageData.TotalPage,
-			TotalData:   pageData.TotalData,
-		},
-		Result: movies,
-	})
 }
 
 // GetDetailMovie retrieves details of a specific movie by ID
