@@ -4,6 +4,9 @@ import (
 	"be-tickitz/dto"
 	"be-tickitz/models"
 	"be-tickitz/utils"
+	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -121,6 +124,8 @@ func AddTransactions(c *gin.Context) {
 			TransactionId: transactionId,
 		},
 	})
+	rdClient := utils.RedisConnect()
+	rdClient.Del(context.Background(), fmt.Sprintf("/transactions/:%d", int(userId.(float64))))
 }
 
 // GetTransactionsHistory retrieves list of user's transactions
@@ -135,20 +140,37 @@ func AddTransactions(c *gin.Context) {
 // @Router /transactions [get]
 func GetTransactionsHistory(c *gin.Context) {
 	userId, _ := c.Get("userId")
-	trxHistory, err := models.GetTransactionsHistory(int(userId.(float64)))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Response{
-			Success: false,
-			Message: "Failed to get data",
-			Errors:  err.Error(),
+	rdClient := utils.RedisConnect()
+	endpoint := fmt.Sprintf("/transactions/:%d", int(userId.(float64)))
+	result := rdClient.Exists(context.Background(), endpoint)
+	if result.Val() == 0 {
+		trxHistory, err := models.GetTransactionsHistory(int(userId.(float64)))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to get data",
+				Errors:  err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get data",
+			Result:  trxHistory,
 		})
-		return
+		endcodedTrx, _ := json.Marshal(trxHistory)
+		rdClient.Set(context.Background(), endpoint, endcodedTrx, 0)
+	} else {
+		data := rdClient.Get(context.Background(), endpoint)
+		str := data.Val()
+		trxHistory := []dto.TransactionHistory{}
+		json.Unmarshal([]byte(str), &trxHistory)
+		c.JSON(http.StatusOK, utils.Response{
+			Success: true,
+			Message: "Success to get movies",
+			Result:  trxHistory,
+		})
 	}
-	c.JSON(http.StatusOK, utils.Response{
-		Success: true,
-		Message: "Success to get data",
-		Result:  trxHistory,
-	})
 }
 
 // GetReservedSeat retrieves reserved seats for a showtime
