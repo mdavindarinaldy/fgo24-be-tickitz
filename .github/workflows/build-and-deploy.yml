@@ -32,7 +32,7 @@ jobs:
                 port: ${{ secrets.PORT }}
                 key: ${{ secrets.KEY }}
                 source: "migrations"
-                target: "/home/naldy/fgo24-be-tickitz"
+                target: "/home/naldy/fgo24-be-tickitz/migrations"
             - name: Deploy to VPS
               uses: appleboy/ssh-action@v1.0.3
               with:
@@ -45,7 +45,7 @@ jobs:
                  docker pull ghcr.io/${{ github.repository }}:latest
                  docker compose up -d postgres redis
                  docker run --rm \
-                    --network netapp \
+                    --network fgo24-be-tickitz_netapp \
                     -v "/home/naldy/fgo24-be-tickitz/migrations:/migrations" \
                     migrate/migrate \
                     -path=/migrations \
