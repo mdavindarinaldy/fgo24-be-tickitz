@@ -24,7 +24,6 @@ jobs:
                 context: .
                 push: true
                 tags: ghcr.io/${{ github.repository }}:latest
-                file: Dockerfile
             - name: Copy migrations to VPS
               uses: appleboy/scp-action@v0.1.4
               with:
@@ -42,9 +41,8 @@ jobs:
                 key: ${{ secrets.KEY }}
                 port: ${{ secrets.PORT }}
                 script: |
-                 echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-                 docker pull ghcr.io/${{ github.repository }}:latest
                  cd ~/fgo24-be-tickitz
+                 docker pull ghcr.io/${{ github.repository }}:latest
                  docker compose up -d postgres redis
                  docker run --rm \
                     --network deploy_netapp \
