@@ -1,9 +1,6 @@
 FROM golang:alpine AS build
 WORKDIR /buildapp
 
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
 
 RUN go build -o gotickitz main.go
