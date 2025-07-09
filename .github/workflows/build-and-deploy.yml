@@ -41,11 +41,11 @@ jobs:
                 key: ${{ secrets.KEY }}
                 port: ${{ secrets.PORT }}
                 script: |
-                 cd ~/fgo24-be-tickitz
+                 cd /home/naldy/fgo24-be-tickitz
                  docker pull ghcr.io/${{ github.repository }}:latest
                  docker compose up -d postgres redis
                  docker run --rm \
-                    --network deploy_netapp \
+                    --network netapp \
                     -v "/home/naldy/fgo24-be-tickitz/migrations:/migrations" \
                     migrate/migrate \
                     -path=/migrations \
