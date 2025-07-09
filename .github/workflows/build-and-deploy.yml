@@ -25,6 +25,15 @@ jobs:
                 push: true
                 tags: ghcr.io/${{ github.repository }}:latest
                 file: Dockerfile
+            - name: Copy migrations to VPS
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                host: ${{ secrets.REMOTE_HOST }}
+                username: ${{ secrets.REMOTE_USER }}
+                port: ${{ secrets.PORT }}
+                key: ${{ secrets.KEY }}
+                source: "migrations"
+                target: "/home/naldy/fgo24-be-tickitz"
             - name: Deploy to VPS
               uses: appleboy/ssh-action@v1.0.3
               with:
@@ -37,7 +46,15 @@ jobs:
                  docker pull ghcr.io/${{ github.repository }}:latest
                  cd ~
                  cd fgo24-be-tickitz
-                 docker-compose up -d
+                 docker compose up -d postgres redis
+                 docker run --rm \
+                    --network netapp \
+                    -v "$PWD/migrations:/migrations" \
+                    migrate/migrate \
+                    -path=/migrations \
+                    -database "postgres://postgres:1@postgres:5432/postgres?sslmode=disable" \
+                    up
+                 docker compose up -d --build app
                  docker image prune -f
             
                 
