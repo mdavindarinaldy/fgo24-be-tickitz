@@ -1,5 +1,5 @@
 name: Push Backend Tickitz APP to GHCR and Deploy to VPS
-run-name: Release and Deploy Images
+run-name: Release and Deploy Image
 on:
     push:
         branches:
