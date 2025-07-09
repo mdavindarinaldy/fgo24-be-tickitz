@@ -32,7 +32,7 @@ jobs:
                 port: ${{ secrets.PORT }}
                 key: ${{ secrets.KEY }}
                 source: "migrations"
-                target: "/home/naldy/fgo24-be-tickitz/migrations"
+                target: "/home/naldy/fgo24-be-tickitz"
             - name: Deploy to VPS
               uses: appleboy/ssh-action@v1.0.3
               with:
