@@ -47,7 +47,7 @@ jobs:
                  cd ~/fgo24-be-tickitz
                  docker compose up -d postgres redis
                  docker run --rm \
-                    --network netapp \
+                    --network deploy_netapp \
                     -v "$PWD/migrations:/migrations" \
                     migrate/migrate \
                     -path=/migrations \
