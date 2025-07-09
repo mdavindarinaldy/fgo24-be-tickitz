@@ -12,6 +12,6 @@ FROM alpine:3.22
 
 WORKDIR /app
 
-COPY --from=build /buildapp/gotickitz /app/
+COPY --from=build /buildapp/gotickitz /app/gotickitz
 
 ENTRYPOINT [ "/app/gotickitz" ]
