@@ -173,23 +173,23 @@ func UpdateUserData(userId int, request dto.UpdateUserRequest) (dto.UpdateUserRe
 	return userData, nil
 }
 
-func GetProfileUser(userId int) (dto.UpdateUserResult, error) {
+func GetProfileUser(userId int) (dto.Profile, error) {
 	conn, err := utils.DBConnect()
 	if err != nil {
-		return dto.UpdateUserResult{}, err
+		return dto.Profile{}, err
 	}
 	defer conn.Close()
 	row, err := conn.Query(context.Background(), `
-		SELECT p.name, u.email, p.phone_number, p.profile_picture 
+		SELECT p.name, u.email, u.role, p.phone_number, p.profile_picture 
 		FROM profiles p
 		JOIN users u ON u.id = p.id_user
 		WHERE p.id=$1`, userId)
 	if err != nil {
-		return dto.UpdateUserResult{}, err
+		return dto.Profile{}, err
 	}
-	result, err := pgx.CollectOneRow[dto.UpdateUserResult](row, pgx.RowToStructByName)
+	result, err := pgx.CollectOneRow[dto.Profile](row, pgx.RowToStructByName)
 	if err != nil {
-		return dto.UpdateUserResult{}, err
+		return dto.Profile{}, err
 	}
 	return result, nil
 }

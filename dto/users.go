@@ -15,3 +15,11 @@ type UpdateUserResult struct {
 	PhoneNumber    string  `json:"phoneNumber" db:"phone_number"`
 	ProfilePicture *string `json:"profilePicture" db:"profile_picture"`
 }
+
+type Profile struct {
+	Email          string  `json:"email" db:"email"`
+	Name           string  `json:"name" db:"name"`
+	Role           string  `json:"role" db:"role"`
+	PhoneNumber    string  `json:"phoneNumber" db:"phone_number"`
+	ProfilePicture *string `json:"profilePicture" db:"profile_picture"`
+}

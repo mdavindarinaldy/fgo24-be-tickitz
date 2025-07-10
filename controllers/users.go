@@ -21,7 +21,7 @@ import (
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., invalid input, email/phone already used, password mismatch)"
 // @Failure 401 {object} utils.Response "Unauthorized"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /user [patch]
+// @Router /profile [patch]
 func UpdateUser(c *gin.Context) {
 	userId, _ := c.Get("userId")
 	role, _ := c.Get("role")
@@ -67,20 +67,12 @@ func UpdateUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} utils.Response{result=[]dto.UpdateUserResult} "Successful response with user profile data"
+// @Success 200 {object} utils.Response{result=[]dto.Profile} "Successful response with user profile data"
 // @Failure 401 {object} utils.Response "Unauthorized access"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /user [get]
+// @Router /profile [get]
 func GetProfileUser(c *gin.Context) {
 	userId, _ := c.Get("userId")
-	role, _ := c.Get("role")
-	if role != "user" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
-			Success: false,
-			Message: "Unauthorized",
-		})
-		return
-	}
 	user, err := models.GetProfileUser(int(userId.(float64)))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response{

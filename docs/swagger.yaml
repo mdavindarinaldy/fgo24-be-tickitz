@@ -865,6 +865,90 @@ paths:
       summary: Get upcoming movies
       tags:
       - Movies
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user profile data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with user profile data
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/dto.UpdateUserResult'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get profile user
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Updates user credentials (email, password) and/or profile (name,
+        phone number, profile picture)
+      parameters:
+      - description: User update data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.UpdateUserResult'
+              type: object
+        "400":
+          description: Bad request (e.g., invalid input, email/phone already used,
+            password mismatch)
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update user data
+      tags:
+      - User
   /transactions:
     get:
       consumes:
@@ -1103,90 +1187,6 @@ paths:
       summary: Get reserved seats
       tags:
       - Transactions
-  /user:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve user profile data
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response with user profile data
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  items:
-                    $ref: '#/definitions/dto.UpdateUserResult'
-                  type: array
-              type: object
-        "401":
-          description: Unauthorized access
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get profile user
-      tags:
-      - User
-    patch:
-      consumes:
-      - application/json
-      description: Updates user credentials (email, password) and/or profile (name,
-        phone number, profile picture)
-      parameters:
-      - description: User update data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User data updated successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  $ref: '#/definitions/dto.UpdateUserResult'
-              type: object
-        "400":
-          description: Bad request (e.g., invalid input, email/phone already used,
-            password mismatch)
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Update user data
-      tags:
-      - User
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token
