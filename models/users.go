@@ -183,7 +183,7 @@ func GetProfileUser(userId int) (dto.Profile, error) {
 		SELECT p.name, u.email, u.role, p.phone_number, p.profile_picture 
 		FROM profiles p
 		JOIN users u ON u.id = p.id_user
-		WHERE p.id=$1`, userId)
+		WHERE p.id_user=$1`, userId)
 	if err != nil {
 		return dto.Profile{}, err
 	}
