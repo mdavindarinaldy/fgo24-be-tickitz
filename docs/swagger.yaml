@@ -60,29 +60,6 @@ definitions:
       name:
         type: string
     type: object
-  dto.NewMovie:
-    properties:
-      backdrop:
-        type: string
-      casts:
-        type: string
-      directors:
-        type: string
-      genres:
-        type: string
-      poster:
-        type: string
-      price:
-        type: number
-      releaseDate:
-        type: string
-      runtime:
-        type: integer
-      synopsis:
-        type: string
-      title:
-        type: string
-    type: object
   dto.NewTrx:
     properties:
       cinema:
@@ -468,16 +445,60 @@ paths:
   /admin/movie:
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Create a new movie with associated genres, directors, and casts
         (admin only)
       parameters:
-      - description: Movie data
-        in: body
-        name: movie
+      - description: Movie title
+        in: formData
+        name: title
         required: true
-        schema:
-          $ref: '#/definitions/dto.NewMovie'
+        type: string
+      - description: Movie synopsis
+        in: formData
+        name: synopsis
+        required: true
+        type: string
+      - description: Release date (YYYY-MM-DD)
+        in: formData
+        name: releaseDate
+        required: true
+        type: string
+      - description: Ticket price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Duration in minutes
+        in: formData
+        name: runtime
+        required: true
+        type: integer
+      - description: Comma-separated genre IDs
+        in: formData
+        name: genres
+        required: true
+        type: string
+      - description: Comma-separated director IDs
+        in: formData
+        name: directors
+        required: true
+        type: string
+      - description: Comma-separated cast IDs
+        in: formData
+        name: casts
+        required: true
+        type: string
+      - description: Poster image
+        in: formData
+        name: poster
+        required: true
+        type: file
+      - description: Backdrop image
+        in: formData
+        name: backdrop
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -545,21 +566,60 @@ paths:
       - 'Admin: Movies'
     put:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update a movie's details and associated genres, directors, and
         casts (admin only)
       parameters:
-      - description: Movie ID
-        in: path
-        name: id
+      - description: Movie title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Movie synopsis
+        in: formData
+        name: synopsis
+        required: true
+        type: string
+      - description: Release date (YYYY-MM-DD)
+        in: formData
+        name: releaseDate
+        required: true
+        type: string
+      - description: Ticket price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Duration in minutes
+        in: formData
+        name: runtime
         required: true
         type: integer
-      - description: Movie data
-        in: body
-        name: movie
+      - description: Comma-separated genre IDs
+        in: formData
+        name: genres
         required: true
-        schema:
-          $ref: '#/definitions/dto.NewMovie'
+        type: string
+      - description: Comma-separated director IDs
+        in: formData
+        name: directors
+        required: true
+        type: string
+      - description: Comma-separated cast IDs
+        in: formData
+        name: casts
+        required: true
+        type: string
+      - description: Poster image
+        in: formData
+        name: poster
+        required: true
+        type: file
+      - description: Backdrop image
+        in: formData
+        name: backdrop
+        required: true
+        type: file
       produces:
       - application/json
       responses:

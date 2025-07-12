@@ -478,7 +478,7 @@ const docTemplate = `{
                 ],
                 "description": "Create a new movie with associated genres, directors, and casts (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -489,13 +489,74 @@ const docTemplate = `{
                 "summary": "Add a new movie",
                 "parameters": [
                     {
-                        "description": "Movie data",
-                        "name": "movie",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.NewMovie"
-                        }
+                        "type": "string",
+                        "description": "Movie title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Movie synopsis",
+                        "name": "synopsis",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Release date (YYYY-MM-DD)",
+                        "name": "releaseDate",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Ticket price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Duration in minutes",
+                        "name": "runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated genre IDs",
+                        "name": "genres",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated director IDs",
+                        "name": "directors",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated cast IDs",
+                        "name": "casts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Poster image",
+                        "name": "poster",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Backdrop image",
+                        "name": "backdrop",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -547,7 +608,7 @@ const docTemplate = `{
                 ],
                 "description": "Update a movie's details and associated genres, directors, and casts (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -558,20 +619,74 @@ const docTemplate = `{
                 "summary": "Update a movie",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Movie ID",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Movie title",
+                        "name": "title",
+                        "in": "formData",
                         "required": true
                     },
                     {
-                        "description": "Movie data",
-                        "name": "movie",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.NewMovie"
-                        }
+                        "type": "string",
+                        "description": "Movie synopsis",
+                        "name": "synopsis",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Release date (YYYY-MM-DD)",
+                        "name": "releaseDate",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Ticket price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Duration in minutes",
+                        "name": "runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated genre IDs",
+                        "name": "genres",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated director IDs",
+                        "name": "directors",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated cast IDs",
+                        "name": "casts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Poster image",
+                        "name": "poster",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Backdrop image",
+                        "name": "backdrop",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1789,41 +1904,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.NewMovie": {
-            "type": "object",
-            "properties": {
-                "backdrop": {
-                    "type": "string"
-                },
-                "casts": {
-                    "type": "string"
-                },
-                "directors": {
-                    "type": "string"
-                },
-                "genres": {
-                    "type": "string"
-                },
-                "poster": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "releaseDate": {
-                    "type": "string"
-                },
-                "runtime": {
-                    "type": "integer"
-                },
-                "synopsis": {
-                    "type": "string"
-                },
-                "title": {
                     "type": "string"
                 }
             }
