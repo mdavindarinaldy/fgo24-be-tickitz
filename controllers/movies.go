@@ -171,14 +171,14 @@ func GetUpcomingMovies(c *gin.Context) {
 // GetGenres retrieves the list of all genres
 // @Summary Get all genres
 // @Description Retrieve a list of all genres (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with genres list"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /movies/genres [get]
+// @Router /admin/genres [get]
 func GetGenres(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -206,7 +206,7 @@ func GetGenres(c *gin.Context) {
 // GetDirectors retrieves directors with optional search
 // @Summary Get directors
 // @Description Retrieve a list of directors with optional search by name (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -214,7 +214,7 @@ func GetGenres(c *gin.Context) {
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with directors list"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /movies/directors [get]
+// @Router /admin/directors [get]
 func GetDirectors(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -243,7 +243,7 @@ func GetDirectors(c *gin.Context) {
 // GetCasts retrieves casts with optional search
 // @Summary Get casts
 // @Description Retrieve a list of casts with optional search by name (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -251,7 +251,7 @@ func GetDirectors(c *gin.Context) {
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with casts list"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /movies/casts [get]
+// @Router /admin/casts [get]
 func GetCasts(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -280,7 +280,7 @@ func GetCasts(c *gin.Context) {
 // AddDirectorHandler adds a new director
 // @Summary Add a new director
 // @Description Create a new director with name (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -289,7 +289,7 @@ func GetCasts(c *gin.Context) {
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty director name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /movies/directors [post]
+// @Router /admin/directors [post]
 func AddDirector(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -329,7 +329,7 @@ func AddDirector(c *gin.Context) {
 // AddCastHandler adds a new cast
 // @Summary Add a new cast
 // @Description Create a new cast with name (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -338,7 +338,7 @@ func AddDirector(c *gin.Context) {
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty cast name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /movies/casts [post]
+// @Router /admin/casts [post]
 func AddCast(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -378,7 +378,7 @@ func AddCast(c *gin.Context) {
 // AddGenreHandler adds a new genre
 // @Summary Add a new genre
 // @Description Create a new genre with name (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -387,7 +387,7 @@ func AddCast(c *gin.Context) {
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty genre name)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /movies/genres [post]
+// @Router /admin/genres [post]
 func AddGenre(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -427,7 +427,7 @@ func AddGenre(c *gin.Context) {
 // AddMovie adds a new movie
 // @Summary Add a new movie
 // @Description Create a new movie with associated genres, directors, and casts (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -436,7 +436,7 @@ func AddGenre(c *gin.Context) {
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty movie data)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /movies [post]
+// @Router /admin/movie [post]
 func AddMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -480,7 +480,7 @@ func AddMovie(c *gin.Context) {
 // UpdateMovieHandler updates an existing movie
 // @Summary Update a movie
 // @Description Update a movie's details and associated genres, directors, and casts (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -490,7 +490,7 @@ func AddMovie(c *gin.Context) {
 // @Failure 400 {object} utils.Response "Bad request (e.g., invalid input)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /movies/{id} [put]
+// @Router /admin/movie/{id} [put]
 func UpdateMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -526,7 +526,7 @@ func UpdateMovie(c *gin.Context) {
 // DeleteMovie deletes a movie
 // @Summary Delete a movie
 // @Description Delete a movie by ID, including its associated genres, directors, and casts (admin only)
-// @Tags Movies
+// @Tags Admin: Movies
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -535,7 +535,7 @@ func UpdateMovie(c *gin.Context) {
 // @Failure 400 {object} utils.Response "Bad request (e.g., invalid movie ID)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /movies/{id} [delete]
+// @Router /admin/movie/{id} [delete]
 func DeleteMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {

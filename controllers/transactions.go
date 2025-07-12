@@ -16,7 +16,7 @@ import (
 // AddPaymentMethod adds a new payment method
 // @Summary Add a new payment method
 // @Description Create a new payment method (admin only)
-// @Tags Transactions
+// @Tags Admin: Transactions
 // @Accept json
 // @Produce json
 // @Security BearerAuth
@@ -25,7 +25,7 @@ import (
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty payment method data)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
-// @Router /transactions/payment-methods [post]
+// @Router /admin/payment-methods [post]
 func AddPaymentMethod(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
@@ -218,14 +218,14 @@ func GetReservedSeat(c *gin.Context) {
 // GetSalesPerMovie retrieves total sales data per movie
 // @Summary Get sales data per movie
 // @Description Retrieves aggregated sales data for each movie, accessible only to admin users
-// @Tags Transactions
+// @Tags Admin: Transactions
 // @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 201 {object} utils.Response{result=[]dto.SalesPerMovie} "Successful response with sales data per movie"
 // @Failure 401 {object} utils.Response "Unauthorized"
 // @Failure 500 {object} utils.Response "Internal server error"
-// @Router /transactions/sales [get]
+// @Router /admin/sales [get]
 func GetSalesPerMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
