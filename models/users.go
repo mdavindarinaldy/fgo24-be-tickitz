@@ -69,9 +69,10 @@ func UpdateUserData(userId int, request dto.UpdateUserRequest) (dto.UpdateUserRe
 	_, err = tx.Exec(context.Background(),
 		`UPDATE users
 		 SET email = COALESCE($1, email),
-		     password = COALESCE($2, password)
-		 WHERE id = $3`,
-		request.Email, hashedPassword, userId)
+		     password = COALESCE($2, password),
+			 updated_at = $3
+		 WHERE id = $4`,
+		request.Email, hashedPassword, time.Now(), userId)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
 			return dto.UpdateUserResult{}, errors.New("email already used by another user")
@@ -83,9 +84,10 @@ func UpdateUserData(userId int, request dto.UpdateUserRequest) (dto.UpdateUserRe
 		`UPDATE profiles
 		 SET name = COALESCE($1, name),
 		     phone_number = COALESCE($2, phone_number),
-		     profile_picture = COALESCE($3, profile_picture)
-		 WHERE id_user = $4`,
-		request.Name, request.PhoneNumber, request.ProfilePicture, userId)
+		     profile_picture = COALESCE($3, profile_picture),
+			 updated_at = $4
+		 WHERE id_user = $5`,
+		request.Name, request.PhoneNumber, request.ProfilePicture, time.Now(), userId)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
 			return dto.UpdateUserResult{}, errors.New("phone number already used by another user")

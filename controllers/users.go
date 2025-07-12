@@ -21,7 +21,8 @@ import (
 // @Security BearerAuth
 // @Param name formData string false "Name"
 // @Param email formData string false "Email"
-// @Param password formData string false "Password"
+// @Param password formData string false "New Password"
+// @Param confirmPassword formData string false "Confirm New Password"
 // @Param phone formData string false "Phone number"
 // @Param file formData file false "Profile picture"
 // @Success 200 {object} utils.Response{result=dto.UpdateUserResult} "User data updated successfully"

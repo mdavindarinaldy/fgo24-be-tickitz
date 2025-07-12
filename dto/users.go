@@ -3,10 +3,10 @@ package dto
 type UpdateUserRequest struct {
 	Email           *string `form:"email" json:"email" binding:"omitempty,email"`
 	Password        *string `form:"password" json:"password" binding:"omitempty,min=6"`
-	ConfirmPassword *string `form:"confirmPassword" json:"confirmPassword" binding:"eqfield=Password"`
-	Name            *string `form:"name" json:"name" binding:"omitempty"`
+	ConfirmPassword *string `form:"confirmPassword" json:"confirmPassword" binding:"omitempty"`
+	Name            *string `form:"fullname" json:"fullname" binding:"omitempty"`
 	PhoneNumber     *string `form:"phoneNumber" json:"phoneNumber" binding:"omitempty"`
-	ProfilePicture  *string `form:"profilePicture" json:"profilePicture" binding:"omitempty,uri"`
+	ProfilePicture  *string `form:"profilePicture" json:"profilePicture" binding:"omitempty"`
 }
 
 type UpdateUserResult struct {

@@ -1516,8 +1516,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Password",
+                        "description": "New Password",
                         "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Confirm New Password",
+                        "name": "confirmPassword",
                         "in": "formData"
                     },
                     {
@@ -2009,6 +2015,9 @@ const docTemplate = `{
         },
         "dto.CheckPass": {
             "type": "object",
+            "required": [
+                "password"
+            ],
             "properties": {
                 "password": {
                     "type": "string"

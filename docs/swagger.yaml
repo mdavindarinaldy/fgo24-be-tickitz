@@ -49,6 +49,8 @@ definitions:
     properties:
       password:
         type: string
+    required:
+    - password
     type: object
   dto.CustomDate:
     properties:
@@ -1091,9 +1093,13 @@ paths:
         in: formData
         name: email
         type: string
-      - description: Password
+      - description: New Password
         in: formData
         name: password
+        type: string
+      - description: Confirm New Password
+        in: formData
+        name: confirmPassword
         type: string
       - description: Phone number
         in: formData
