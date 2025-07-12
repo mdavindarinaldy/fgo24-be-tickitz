@@ -23,3 +23,7 @@ type Profile struct {
 	PhoneNumber    string  `json:"phoneNumber" db:"phone_number"`
 	ProfilePicture *string `json:"profilePicture" db:"profile_picture"`
 }
+
+type CheckPass struct {
+	Password string `json:"password" db:"password" binding:"required"`
+}

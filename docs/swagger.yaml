@@ -45,6 +45,11 @@ definitions:
       otp:
         type: string
     type: object
+  dto.CheckPass:
+    properties:
+      password:
+        type: string
+    type: object
   dto.CustomDate:
     properties:
       time.Time:
@@ -208,7 +213,11 @@ paths:
                   type: array
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -253,7 +262,11 @@ paths:
                   type: string
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -296,7 +309,11 @@ paths:
                   type: array
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -341,7 +358,11 @@ paths:
                   type: string
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -378,7 +399,11 @@ paths:
                   type: array
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -423,7 +448,11 @@ paths:
                   type: string
               type: object
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -509,7 +538,11 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -550,7 +583,11 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -630,7 +667,11 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -671,7 +712,11 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
         "401":
-          description: Unauthorized access (requires admin role)
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -709,7 +754,11 @@ paths:
                   type: array
               type: object
         "401":
-          description: Unauthorized
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden access (requires admin role)
           schema:
             $ref: '#/definitions/utils.Response'
         "500":
@@ -1092,6 +1141,43 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user data
+      tags:
+      - Profile
+  /profile/check-pass:
+    post:
+      consumes:
+      - application/json
+      description: Check whether the input is the corret password for the current
+        login user or not
+      parameters:
+      - description: User's password
+        in: body
+        name: Password
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CheckPass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with true result (password is confirmed)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: 'Bad request: wrong password'
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Check password
       tags:
       - Profile
   /transactions:

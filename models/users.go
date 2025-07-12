@@ -128,3 +128,24 @@ func GetProfileUser(userId int) (dto.Profile, error) {
 	}
 	return result, nil
 }
+
+func CheckPass(userId int, pass string) (bool, error) {
+	conn, err := utils.DBConnect()
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+	row, err := conn.Query(context.Background(), `
+		SELECT password 
+		FROM users
+		WHERE id=$1`, userId)
+	if err != nil {
+		return false, err
+	}
+	result, err := pgx.CollectOneRow[dto.CheckPass](row, pgx.RowToStructByName)
+	if err != nil {
+		return false, err
+	}
+	ok, _ := argon2.VerifyEncoded([]byte(pass), []byte(result.Password))
+	return ok, nil
+}

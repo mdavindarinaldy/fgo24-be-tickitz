@@ -64,7 +64,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -143,7 +149,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -218,7 +230,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -297,7 +315,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -364,7 +388,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -443,7 +473,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -573,7 +609,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -703,7 +745,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -768,7 +816,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -825,7 +879,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access (requires admin role)",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -892,7 +952,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden access (requires admin role)",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -1531,6 +1597,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/profile/check-pass": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Check whether the input is the corret password for the current login user or not",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Check password",
+                "parameters": [
+                    {
+                        "description": "User's password",
+                        "name": "Password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CheckPass"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with true result (password is confirmed)",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: wrong password",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/transactions": {
             "get": {
                 "security": [
@@ -1880,6 +2003,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CheckPass": {
+            "type": "object",
+            "properties": {
+                "password": {
                     "type": "string"
                 }
             }

@@ -129,3 +129,44 @@ func GetProfileUser(c *gin.Context) {
 		Result:  user,
 	})
 }
+
+// ConfirmPass Check user's password
+// @Summary Check password
+// @Description Check whether the input is the corret password for the current login user or not
+// @Tags Profile
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Password body dto.CheckPass true "User's password"
+// @Success 200 {object} utils.Response "Successful response with true result (password is confirmed)"
+// @Failure 400 {object} utils.Response "Bad request: wrong password"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 500 {object} utils.Response "Internal server error"
+// @Router /profile/check-pass [POST]
+func ConfirmPass(c *gin.Context) {
+	userId, _ := c.Get("userId")
+	var pass dto.CheckPass
+	c.ShouldBindJSON(&pass)
+	result, err := models.CheckPass(int(userId.(float64)), pass.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Internal Server Error",
+			Result:  false,
+		})
+		return
+	}
+	if !result {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Wrong password",
+			Result:  result,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Confirmed",
+		Result:  result,
+	})
+}
