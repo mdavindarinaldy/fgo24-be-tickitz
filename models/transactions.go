@@ -51,7 +51,7 @@ func GetPaymentMethod() ([]dto.SubData, error) {
 }
 
 func AddTransactions(newTrx dto.NewTrx, userId int) (int, int, error) {
-	if newTrx.Cinema == "" || newTrx.Location == "" || newTrx.Date == "" || newTrx.Showtime == "" || newTrx.PaymentMethodId == 0 || newTrx.TotalAmount == 0 || newTrx.MovieId == 0 || len(newTrx.Seats) == 0 {
+	if newTrx.Cinema == "" || newTrx.Location == "" || newTrx.Date == "" || newTrx.Showtime == "" || newTrx.PaymentMethodId == 0 || newTrx.MovieId == 0 || len(newTrx.Seats) == 0 {
 		return 0, 0, errors.New("transactions data should not be empty")
 	}
 
@@ -97,7 +97,7 @@ func AddTransactions(newTrx dto.NewTrx, userId int) (int, int, error) {
 	if err == pgx.ErrNoRows {
 		err = tx.QueryRow(context.Background(),
 			`INSERT INTO showtimes 
-			(id_movie, cinema, location, date, showtime)
+			 (id_movie, cinema, location, date, showtime)
 			 VALUES ($1, $2, $3, $4, $5) 
 			 RETURNING id`,
 			newTrx.MovieId, newTrx.Cinema, newTrx.Location, dateParsed, showtimeParsed).Scan(&showtimeId)
@@ -108,12 +108,22 @@ func AddTransactions(newTrx dto.NewTrx, userId int) (int, int, error) {
 		return 0, 0, err
 	}
 
-	var transactionId int
+	var price float64
 	err = tx.QueryRow(context.Background(),
-		`INSERT INTO transactions 
+		`SELECT price FROM movies WHERE id = $1`,
+		newTrx.MovieId).Scan(&price)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	totalAmount := price * float64(len(newTrx.Seats))
+
+	var transactionId int
+	err = tx.QueryRow(context.Background(), `
+		INSERT INTO transactions 
 		(id_user, id_payment_method, total_amount)
-		 VALUES ($1, $2, $3) RETURNING id`,
-		userId, newTrx.PaymentMethodId, newTrx.TotalAmount).Scan(&transactionId)
+		VALUES ($1, $2, $3) RETURNING id`,
+		userId, newTrx.PaymentMethodId, totalAmount).Scan(&transactionId)
 	if err != nil {
 		return 0, 0, err
 	}

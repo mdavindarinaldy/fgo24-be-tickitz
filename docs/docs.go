@@ -1934,9 +1934,6 @@ const docTemplate = `{
                 },
                 "showtime": {
                     "type": "string"
-                },
-                "totalAmount": {
-                    "type": "number"
                 }
             }
         },

@@ -78,8 +78,6 @@ definitions:
         type: array
       showtime:
         type: string
-      totalAmount:
-        type: number
     type: object
   dto.Profile:
     properties:
