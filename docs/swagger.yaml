@@ -104,6 +104,19 @@ definitions:
       totalAmount:
         type: number
     type: object
+  dto.Profile:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      profilePicture:
+        type: string
+      role:
+        type: string
+    type: object
   dto.ReservedSeatsResponse:
     properties:
       id_showtime:
@@ -159,22 +172,6 @@ definitions:
       transactionId:
         type: integer
     type: object
-  dto.UpdateUserRequest:
-    properties:
-      confirmPassword:
-        type: string
-      email:
-        type: string
-      name:
-        type: string
-      password:
-        minLength: 6
-        type: string
-      phoneNumber:
-        type: string
-      profilePicture:
-        type: string
-    type: object
   dto.UpdateUserResult:
     properties:
       email:
@@ -211,6 +208,461 @@ info:
   title: CRUD
   version: "1.0"
 paths:
+  /admin/casts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of casts with optional search by name (admin only)
+      parameters:
+      - description: Search by cast name (case-insensitive)
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with casts list
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/dto.SubData'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get casts
+      tags:
+      - 'Admin: Movies'
+    post:
+      consumes:
+      - application/json
+      description: Create a new cast with name (admin only)
+      parameters:
+      - description: Cast data
+        in: body
+        name: cast
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Cast created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.SubData'
+              type: object
+        "400":
+          description: Bad request (e.g., empty cast name)
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new cast
+      tags:
+      - 'Admin: Movies'
+  /admin/directors:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of directors with optional search by name (admin
+        only)
+      parameters:
+      - description: Search by director name (case-insensitive)
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with directors list
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/dto.SubData'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get directors
+      tags:
+      - 'Admin: Movies'
+    post:
+      consumes:
+      - application/json
+      description: Create a new director with name (admin only)
+      parameters:
+      - description: Director data
+        in: body
+        name: director
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Director created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.SubData'
+              type: object
+        "400":
+          description: Bad request (e.g., empty director name)
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new director
+      tags:
+      - 'Admin: Movies'
+  /admin/genres:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all genres (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with genres list
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/dto.SubData'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all genres
+      tags:
+      - 'Admin: Movies'
+    post:
+      consumes:
+      - application/json
+      description: Create a new genre with name (admin only)
+      parameters:
+      - description: Genre data
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Genre created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.SubData'
+              type: object
+        "400":
+          description: Bad request (e.g., empty genre name)
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new genre
+      tags:
+      - 'Admin: Movies'
+  /admin/movie:
+    post:
+      consumes:
+      - application/json
+      description: Create a new movie with associated genres, directors, and casts
+        (admin only)
+      parameters:
+      - description: Movie data
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewMovie'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Movie created successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad request (e.g., empty movie data)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new movie
+      tags:
+      - 'Admin: Movies'
+  /admin/movie/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a movie by ID, including its associated genres, directors,
+        and casts (admin only)
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Movie deleted successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad request (e.g., invalid movie ID)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete a movie
+      tags:
+      - 'Admin: Movies'
+    put:
+      consumes:
+      - application/json
+      description: Update a movie's details and associated genres, directors, and
+        casts (admin only)
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Movie data
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewMovie'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Movie updated successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad request (e.g., invalid input)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a movie
+      tags:
+      - 'Admin: Movies'
+  /admin/payment-methods:
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment method (admin only)
+      parameters:
+      - description: New payment method data
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment method created successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad request (e.g., empty payment method data)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized access (requires admin role)
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                errors:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new payment method
+      tags:
+      - 'Admin: Transactions'
+  /admin/sales:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves aggregated sales data for each movie, accessible only
+        to admin users
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successful response with sales data per movie
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/dto.SalesPerMovie'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get sales data per movie
+      tags:
+      - 'Admin: Transactions'
   /auth/login:
     post:
       consumes:
@@ -442,83 +894,7 @@ paths:
       summary: Get movies
       tags:
       - Movies
-    post:
-      consumes:
-      - application/json
-      description: Create a new movie with associated genres, directors, and casts
-        (admin only)
-      parameters:
-      - description: Movie data
-        in: body
-        name: movie
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewMovie'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Movie created successfully
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad request (e.g., empty movie data)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new movie
-      tags:
-      - Movies
   /movies/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a movie by ID, including its associated genres, directors,
-        and casts (admin only)
-      parameters:
-      - description: Movie ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Movie deleted successfully
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad request (e.g., invalid movie ID)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Delete a movie
-      tags:
-      - Movies
     get:
       consumes:
       - application/json
@@ -541,309 +917,6 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
       summary: Get movie details
-      tags:
-      - Movies
-    put:
-      consumes:
-      - application/json
-      description: Update a movie's details and associated genres, directors, and
-        casts (admin only)
-      parameters:
-      - description: Movie ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Movie data
-        in: body
-        name: movie
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewMovie'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Movie updated successfully
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad request (e.g., invalid input)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Update a movie
-      tags:
-      - Movies
-  /movies/casts:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of casts with optional search by name (admin only)
-      parameters:
-      - description: Search by cast name (case-insensitive)
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response with casts list
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  items:
-                    $ref: '#/definitions/dto.SubData'
-                  type: array
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get casts
-      tags:
-      - Movies
-    post:
-      consumes:
-      - application/json
-      description: Create a new cast with name (admin only)
-      parameters:
-      - description: Cast data
-        in: body
-        name: cast
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Cast created successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  $ref: '#/definitions/dto.SubData'
-              type: object
-        "400":
-          description: Bad request (e.g., empty cast name)
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new cast
-      tags:
-      - Movies
-  /movies/directors:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of directors with optional search by name (admin
-        only)
-      parameters:
-      - description: Search by director name (case-insensitive)
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response with directors list
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  items:
-                    $ref: '#/definitions/dto.SubData'
-                  type: array
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get directors
-      tags:
-      - Movies
-    post:
-      consumes:
-      - application/json
-      description: Create a new director with name (admin only)
-      parameters:
-      - description: Director data
-        in: body
-        name: director
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Director created successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  $ref: '#/definitions/dto.SubData'
-              type: object
-        "400":
-          description: Bad request (e.g., empty director name)
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new director
-      tags:
-      - Movies
-  /movies/genres:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of all genres (admin only)
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response with genres list
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  items:
-                    $ref: '#/definitions/dto.SubData'
-                  type: array
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get all genres
-      tags:
-      - Movies
-    post:
-      consumes:
-      - application/json
-      description: Create a new genre with name (admin only)
-      parameters:
-      - description: Genre data
-        in: body
-        name: genre
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Genre created successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  $ref: '#/definitions/dto.SubData'
-              type: object
-        "400":
-          description: Bad request (e.g., empty genre name)
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new genre
       tags:
       - Movies
   /movies/upcoming:
@@ -881,7 +954,7 @@ paths:
             - properties:
                 result:
                   items:
-                    $ref: '#/definitions/dto.UpdateUserResult'
+                    $ref: '#/definitions/dto.Profile'
                   type: array
               type: object
         "401":
@@ -896,19 +969,33 @@ paths:
       - BearerAuth: []
       summary: Get profile user
       tags:
-      - User
+      - Profile
     patch:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Updates user credentials (email, password) and/or profile (name,
         phone number, profile picture)
       parameters:
-      - description: User update data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateUserRequest'
+      - description: Name
+        in: formData
+        name: name
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        type: string
+      - description: Phone number
+        in: formData
+        name: phone
+        type: string
+      - description: Profile picture
+        in: formData
+        name: file
+        type: file
       produces:
       - application/json
       responses:
@@ -948,7 +1035,7 @@ paths:
       - BearerAuth: []
       summary: Update user data
       tags:
-      - User
+      - Profile
   /transactions:
     get:
       consumes:
@@ -1045,79 +1132,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get payment method
-      tags:
-      - Transactions
-    post:
-      consumes:
-      - application/json
-      description: Create a new payment method (admin only)
-      parameters:
-      - description: New payment method data
-        in: body
-        name: movie
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Payment method created successfully
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad request (e.g., empty payment method data)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Unauthorized access (requires admin role)
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                errors:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new payment method
-      tags:
-      - Transactions
-  /transactions/sales:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves aggregated sales data for each movie, accessible only
-        to admin users
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successful response with sales data per movie
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                result:
-                  items:
-                    $ref: '#/definitions/dto.SalesPerMovie'
-                  type: array
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get sales data per movie
       tags:
       - Transactions
   /transactions/seats:
