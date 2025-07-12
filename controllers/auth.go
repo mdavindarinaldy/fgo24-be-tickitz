@@ -208,6 +208,7 @@ func AuthResetPass(c *gin.Context) {
 						Errors:  err.Error(),
 					})
 				} else {
+					rdClient.Del(context.Background(), redisEndpoint)
 					c.JSON(http.StatusOK, utils.Response{
 						Success: true,
 						Message: "Change pass success!",
