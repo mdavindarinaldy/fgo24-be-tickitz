@@ -157,11 +157,20 @@ func AuthForgotPass(c *gin.Context) {
 		otp := fmt.Sprint(rand.Intn(900) + 100)
 		endpoint := fmt.Sprintf("/auth/otp/%d", userData.Id)
 		rdClient.Set(context.Background(), endpoint, otp, (3 * time.Minute))
+		body := fmt.Sprintf("<p>OTP to reset your password: </p><code>%s</code>", otp)
+		err = utils.SendEmail(emailUser.Email, "Reset Your Password", body)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to send email",
+				Errors:  err.Error(),
+			})
+			return
+		}
 		c.JSON(http.StatusOK, utils.Response{
 			Success: true,
 			Message: "OTP has been sent to your email that will expires within 3 minutes",
 		})
-		fmt.Printf("[EMAIL SIMULATION]\n OTP Code for %s to reset password is %s\n", emailUser.Email, otp)
 		rdClient.Close()
 	} else {
 		c.JSON(http.StatusBadRequest, utils.Response{
