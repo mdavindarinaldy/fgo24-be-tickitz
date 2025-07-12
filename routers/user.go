@@ -11,4 +11,5 @@ func userRouter(r *gin.RouterGroup) {
 	r.Use(middlewares.VerifyToken())
 	r.PATCH("", controllers.UpdateUser)
 	r.GET("", controllers.GetProfileUser)
+	r.POST("/check-pass", controllers.ConfirmPass)
 }
