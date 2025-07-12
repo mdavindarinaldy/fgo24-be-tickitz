@@ -179,7 +179,8 @@ func GetUpcomingMovies(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with genres list"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /admin/genres [get]
 func GetGenres(c *gin.Context) {
@@ -215,7 +216,8 @@ func GetGenres(c *gin.Context) {
 // @Security BearerAuth
 // @Param search query string false "Search by director name (case-insensitive)" example:"nolan"
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with directors list"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /admin/directors [get]
 func GetDirectors(c *gin.Context) {
@@ -252,7 +254,8 @@ func GetDirectors(c *gin.Context) {
 // @Security BearerAuth
 // @Param search query string false "Search by cast name (case-insensitive)" example:"dicaprio"
 // @Success 200 {object} utils.Response{result=[]dto.SubData} "Successful response with casts list"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /admin/casts [get]
 func GetCasts(c *gin.Context) {
@@ -290,7 +293,8 @@ func GetCasts(c *gin.Context) {
 // @Param director body dto.NewData true "Director data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Director created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty director name)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/directors [post]
 func AddDirector(c *gin.Context) {
@@ -339,7 +343,8 @@ func AddDirector(c *gin.Context) {
 // @Param cast body dto.NewData true "Cast data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Cast created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty cast name)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/casts [post]
 func AddCast(c *gin.Context) {
@@ -388,7 +393,8 @@ func AddCast(c *gin.Context) {
 // @Param genre body dto.NewData true "Genre data"
 // @Success 201 {object} utils.Response{result=dto.SubData} "Genre created successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., empty genre name)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/genres [post]
 func AddGenre(c *gin.Context) {
@@ -446,7 +452,8 @@ func AddGenre(c *gin.Context) {
 // @Param backdrop formData file true "Backdrop image"
 // @Success 201 {object} utils.Response "Movie created successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty movie data)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/movie [post]
 func AddMovie(c *gin.Context) {
@@ -586,7 +593,8 @@ func AddMovie(c *gin.Context) {
 // @Param backdrop formData file true "Backdrop image"
 // @Success 200 {object} utils.Response "Movie updated successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., invalid input)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/movie/{id} [put]
 func UpdateMovie(c *gin.Context) {
@@ -709,7 +717,8 @@ func UpdateMovie(c *gin.Context) {
 // @Param id path int true "Movie ID"
 // @Success 200 {object} utils.Response "Movie deleted successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., invalid movie ID)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /admin/movie/{id} [delete]
 func DeleteMovie(c *gin.Context) {

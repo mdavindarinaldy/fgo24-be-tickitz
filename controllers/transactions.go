@@ -23,15 +23,16 @@ import (
 // @Param movie body dto.NewData true "New payment method data"
 // @Success 201 {object} utils.Response "Payment method created successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty payment method data)"
-// @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response{errors=string} "Internal server error"
 // @Router /admin/payment-methods [post]
 func AddPaymentMethod(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -224,15 +225,16 @@ func GetReservedSeat(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 201 {object} utils.Response{result=[]dto.SalesPerMovie} "Successful response with sales data per movie"
-// @Failure 401 {object} utils.Response "Unauthorized"
+// @Failure 401 {object} utils.Response "Unauthorized access"
+// @Failure 403 {object} utils.Response "Forbidden access (requires admin role)"
 // @Failure 500 {object} utils.Response "Internal server error"
 // @Router /admin/sales [get]
 func GetSalesPerMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
