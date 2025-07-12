@@ -91,7 +91,6 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -121,7 +120,6 @@ func GetProfileUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal Server Error",
-			Errors:  err.Error(),
 		})
 		return
 	}

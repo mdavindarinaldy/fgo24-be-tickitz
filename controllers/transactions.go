@@ -103,7 +103,7 @@ func AddTransactions(c *gin.Context) {
 	c.ShouldBind(&newTrx)
 	showtimeId, transactionId, err := models.AddTransactions(newTrx, int(userId.(float64)))
 	if err != nil {
-		if err.Error() == "transactions data should not be empty" || strings.Contains(err.Error(), "unique_seat_per_showtime") || err.Error() == "invalid showtime format, use HH:MM:SS" || err.Error() == "invalid date format, use YYYY-MM-DD" {
+		if err.Error() == "transactions data should not be empty" || err.Error() == "invalid showtime format, use HH:MM:SS" || err.Error() == "invalid date format, use YYYY-MM-DD" {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
 				Message: "Failed to order ticket",
@@ -111,10 +111,17 @@ func AddTransactions(c *gin.Context) {
 			})
 			return
 		}
+		if strings.Contains(err.Error(), "unique_seat_per_showtime") {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Failed to order ticket",
+				Errors:  "Seat(s) are already taken",
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -151,7 +158,6 @@ func GetTransactionsHistory(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, utils.Response{
 				Success: false,
 				Message: "Failed to get data",
-				Errors:  err.Error(),
 			})
 			return
 		}
@@ -243,7 +249,6 @@ func GetSalesPerMovie(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Status internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}

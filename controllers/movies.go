@@ -43,7 +43,6 @@ func GetMovies(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, utils.Response{
 				Success: false,
 				Message: "Internal server error",
-				Errors:  err.Error(),
 			})
 			return
 		}
@@ -558,7 +557,6 @@ func AddMovie(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}

@@ -44,7 +44,6 @@ func AuthRegister(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -87,7 +86,6 @@ func AuthLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -97,7 +95,6 @@ func AuthLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -148,7 +145,6 @@ func AuthForgotPass(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -163,7 +159,6 @@ func AuthForgotPass(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, utils.Response{
 				Success: false,
 				Message: "Failed to send email",
-				Errors:  err.Error(),
 			})
 			return
 		}
@@ -199,7 +194,6 @@ func AuthResetPass(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Internal server error",
-			Errors:  err.Error(),
 		})
 		return
 	}
@@ -214,7 +208,6 @@ func AuthResetPass(c *gin.Context) {
 					c.JSON(http.StatusInternalServerError, utils.Response{
 						Success: false,
 						Message: "Internal server error",
-						Errors:  err.Error(),
 					})
 				} else {
 					rdClient.Del(context.Background(), redisEndpoint)
@@ -278,7 +271,6 @@ func AuthLogout(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Failed to logout",
-			Errors:  err.Error(),
 		})
 		return
 	}
