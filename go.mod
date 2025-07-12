@@ -16,6 +16,8 @@ require github.com/matthewhartstonge/argon2 v1.3.2
 
 require github.com/gin-contrib/cors v1.7.6
 
+require github.com/google/uuid v1.6.0
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
