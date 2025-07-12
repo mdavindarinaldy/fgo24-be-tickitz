@@ -5,18 +5,25 @@ import (
 	"be-tickitz/models"
 	"be-tickitz/utils"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // UpdateUser updates user credentials and/or profile
 // @Summary Update user data
 // @Description Updates user credentials (email, password) and/or profile (name, phone number, profile picture)
-// @Tags User
-// @Accept json
+// @Tags Profile
+// @Accept multipart/form-data
 // @Produce json
 // @Security BearerAuth
-// @Param user body dto.UpdateUserRequest true "User update data"
+// @Param name formData string false "Name"
+// @Param email formData string false "Email"
+// @Param password formData string false "Password"
+// @Param phone formData string false "Phone number"
+// @Param file formData file false "Profile picture"
 // @Success 200 {object} utils.Response{result=dto.UpdateUserResult} "User data updated successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., invalid input, email/phone already used, password mismatch)"
 // @Failure 401 {object} utils.Response "Unauthorized"
@@ -26,14 +33,50 @@ func UpdateUser(c *gin.Context) {
 	userId, _ := c.Get("userId")
 	role, _ := c.Get("role")
 	if role != "user" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
 	var request dto.UpdateUserRequest
-	c.ShouldBindJSON(&request)
+	c.ShouldBind(&request)
+
+	file, _ := c.FormFile("file")
+	fileName := ""
+	if file != nil {
+		if file.Size > 2*1024*1024 {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "File is too large",
+			})
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(file.Filename))
+		allowedExts := map[string]bool{
+			".jpg":  true,
+			".jpeg": true,
+			".png":  true,
+		}
+		if !allowedExts[ext] {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+			})
+			return
+		}
+		fileExt := filepath.Ext(file.Filename)
+		fileName = uuid.New().String() + fileExt
+		err := c.SaveUploadedFile(file, "./uploads/profiles/"+fileName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to save uploaded file",
+			})
+			return
+		}
+		request.ProfilePicture = &fileName
+	}
 
 	updatedUser, err := models.UpdateUserData(int(userId.(float64)), request)
 	if err != nil {
@@ -63,7 +106,7 @@ func UpdateUser(c *gin.Context) {
 // GetProfileUser retrieves user profile data
 // @Summary Get profile user
 // @Description Retrieve user profile data
-// @Tags User
+// @Tags Profile
 // @Accept json
 // @Produce json
 // @Security BearerAuth

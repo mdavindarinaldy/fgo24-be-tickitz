@@ -55,115 +55,50 @@ func UpdateUserData(userId int, request dto.UpdateUserRequest) (dto.UpdateUserRe
 		return dto.UpdateUserResult{}, errors.New("password and confirm password do not match")
 	}
 
-	if request.Email != nil && request.Password != nil {
+	var hashedPassword *string
+	if request.Password != nil {
 		argon := argon2.DefaultConfig()
-		hashedPassword, err := argon.HashEncoded([]byte(*request.Password))
+		hash, err := argon.HashEncoded([]byte(*request.Password))
 		if err != nil {
 			return dto.UpdateUserResult{}, err
 		}
-		_, err = tx.Exec(context.Background(),
-			`UPDATE users SET email = $1, password = $2 WHERE id = $3`,
-			*request.Email, string(hashedPassword), userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("email already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.Email != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE users SET email = $1 WHERE id = $2`,
-			*request.Email, userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("email already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.Password != nil {
-		argon := argon2.DefaultConfig()
-		hashedPassword, err := argon.HashEncoded([]byte(*request.Password))
-		if err != nil {
-			return dto.UpdateUserResult{}, err
-		}
-		_, err = tx.Exec(context.Background(),
-			`UPDATE users SET password = $1 WHERE id = $2`,
-			string(hashedPassword), userId)
-		if err != nil {
-			return dto.UpdateUserResult{}, err
-		}
+		hashStr := string(hash)
+		hashedPassword = &hashStr
 	}
 
-	if request.Name != nil && request.PhoneNumber != nil && request.ProfilePicture != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET name = $1, phone_number = $2, profile_picture = $3 WHERE id_user = $4`,
-			*request.Name, *request.PhoneNumber, *request.ProfilePicture, userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("phone number already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
+	_, err = tx.Exec(context.Background(),
+		`UPDATE users
+		 SET email = COALESCE($1, email),
+		     password = COALESCE($2, password)
+		 WHERE id = $3`,
+		request.Email, hashedPassword, userId)
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			return dto.UpdateUserResult{}, errors.New("email already used by another user")
 		}
-	} else if request.Name != nil && request.PhoneNumber != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET name = $1, phone_number = $2 WHERE id_user = $3`,
-			*request.Name, *request.PhoneNumber, userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("phone number already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
+		return dto.UpdateUserResult{}, err
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`UPDATE profiles
+		 SET name = COALESCE($1, name),
+		     phone_number = COALESCE($2, phone_number),
+		     profile_picture = COALESCE($3, profile_picture)
+		 WHERE id_user = $4`,
+		request.Name, request.PhoneNumber, request.ProfilePicture, userId)
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			return dto.UpdateUserResult{}, errors.New("phone number already used by another user")
 		}
-	} else if request.Name != nil && request.ProfilePicture != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET name = $1, profile_picture = $2 WHERE id_user = $3`,
-			*request.Name, *request.ProfilePicture, userId)
-		if err != nil {
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.PhoneNumber != nil && request.ProfilePicture != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET phone_number = $1, profile_picture = $2 WHERE id_user = $3`,
-			*request.PhoneNumber, *request.ProfilePicture, userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("phone number already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.Name != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET name = $1 WHERE id_user = $2`,
-			*request.Name, userId)
-		if err != nil {
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.PhoneNumber != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET phone_number = $1 WHERE id_user = $2`,
-			*request.PhoneNumber, userId)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") {
-				return dto.UpdateUserResult{}, errors.New("phone number already used by another user")
-			}
-			return dto.UpdateUserResult{}, err
-		}
-	} else if request.ProfilePicture != nil {
-		_, err = tx.Exec(context.Background(),
-			`UPDATE profiles SET profile_picture = $1 WHERE id_user = $2`,
-			*request.ProfilePicture, userId)
-		if err != nil {
-			return dto.UpdateUserResult{}, err
-		}
+		return dto.UpdateUserResult{}, err
 	}
 
 	var userData dto.UpdateUserResult
-
 	err = tx.QueryRow(context.Background(),
 		`SELECT u.email, p.name, p.phone_number, p.profile_picture
-         FROM users u
-         JOIN profiles p ON u.id = p.id_user
-         WHERE u.id = $1`, userId).
+		 FROM users u
+		 JOIN profiles p ON u.id = p.id_user
+		 WHERE u.id = $1`, userId).
 		Scan(&userData.Email, &userData.Name, &userData.PhoneNumber, &userData.ProfilePicture)
 
 	if err != nil {

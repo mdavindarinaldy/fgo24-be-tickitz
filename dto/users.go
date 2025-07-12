@@ -1,12 +1,12 @@
 package dto
 
 type UpdateUserRequest struct {
-	Email           *string `json:"email" binding:"omitempty,email"`
-	Password        *string `json:"password" binding:"omitempty,min=6"`
-	ConfirmPassword *string `json:"confirmPassword" binding:"eqfield=Password"`
-	Name            *string `json:"name" binding:"omitempty"`
-	PhoneNumber     *string `json:"phoneNumber" binding:"omitempty"`
-	ProfilePicture  *string `json:"profilePicture" binding:"omitempty,uri"`
+	Email           *string `form:"email" json:"email" binding:"omitempty,email"`
+	Password        *string `form:"password" json:"password" binding:"omitempty,min=6"`
+	ConfirmPassword *string `form:"confirmPassword" json:"confirmPassword" binding:"eqfield=Password"`
+	Name            *string `form:"name" json:"name" binding:"omitempty"`
+	PhoneNumber     *string `form:"phoneNumber" json:"phoneNumber" binding:"omitempty"`
+	ProfilePicture  *string `form:"profilePicture" json:"profilePicture" binding:"omitempty,uri"`
 }
 
 type UpdateUserResult struct {
