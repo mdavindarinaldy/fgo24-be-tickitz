@@ -273,7 +273,7 @@ func GetCasts(search string) ([]dto.SubData, error) {
 }
 
 func AddMovie(newMovie dto.NewMovie, adminId int) error {
-	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate == "" || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == "" || newMovie.Backdrop == "" || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
+	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate == "" || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == nil || newMovie.Backdrop == nil || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
 		return errors.New("new movie data should not be empty")
 	}
 
@@ -306,7 +306,7 @@ func AddMovie(newMovie dto.NewMovie, adminId int) error {
 			($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id;
 		`, adminId, newMovie.Title, newMovie.Synopsis, newMovie.ReleaseDate, newMovie.Price,
-		newMovie.Runtime, "-", "-", time.Now()).Scan(&newMovieId)
+		newMovie.Runtime, newMovie.Poster, newMovie.Backdrop, time.Now()).Scan(&newMovieId)
 	if err != nil {
 		return err
 	}
@@ -452,8 +452,8 @@ func AddGenre(data string) (dto.SubData, error) {
 }
 
 func UpdateMovie(updateMovie dto.NewMovie, movieId int) error {
-	if updateMovie.Title == "" || updateMovie.Synopsis == "" || updateMovie.ReleaseDate == "" || updateMovie.Price == 0 || updateMovie.Runtime == 0 || updateMovie.Poster == "" || updateMovie.Backdrop == "" || updateMovie.Genres == "" || updateMovie.Directors == "" || updateMovie.Casts == "" {
-		return errors.New("new movie data should not be empty")
+	if updateMovie.Title == "" || updateMovie.Synopsis == "" || updateMovie.ReleaseDate == "" || updateMovie.Price == 0 || updateMovie.Runtime == 0 || updateMovie.Poster == nil || updateMovie.Backdrop == nil || updateMovie.Genres == "" || updateMovie.Directors == "" || updateMovie.Casts == "" {
+		return errors.New("update movie data should not be empty")
 	}
 	conn, err := utils.DBConnect()
 	if err != nil {

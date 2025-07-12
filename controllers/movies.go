@@ -8,9 +8,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // GetMovies retrieves a list of movies based on search and genre filters
@@ -182,9 +185,9 @@ func GetUpcomingMovies(c *gin.Context) {
 func GetGenres(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -218,9 +221,9 @@ func GetGenres(c *gin.Context) {
 func GetDirectors(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -255,9 +258,9 @@ func GetDirectors(c *gin.Context) {
 func GetCasts(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -293,9 +296,9 @@ func GetCasts(c *gin.Context) {
 func AddDirector(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -342,9 +345,9 @@ func AddDirector(c *gin.Context) {
 func AddCast(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -391,9 +394,9 @@ func AddCast(c *gin.Context) {
 func AddGenre(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
@@ -428,10 +431,19 @@ func AddGenre(c *gin.Context) {
 // @Summary Add a new movie
 // @Description Create a new movie with associated genres, directors, and casts (admin only)
 // @Tags Admin: Movies
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Security BearerAuth
-// @Param movie body dto.NewMovie true "Movie data"
+// @Param title formData string true "Movie title"
+// @Param synopsis formData string true "Movie synopsis"
+// @Param releaseDate formData string true "Release date (YYYY-MM-DD)"
+// @Param price formData number true "Ticket price"
+// @Param runtime formData int true "Duration in minutes"
+// @Param genres formData string true "Comma-separated genre IDs"
+// @Param directors formData string true "Comma-separated director IDs"
+// @Param casts formData string true "Comma-separated cast IDs"
+// @Param poster formData file true "Poster image"
+// @Param backdrop formData file true "Backdrop image"
 // @Success 201 {object} utils.Response "Movie created successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., empty movie data)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
@@ -440,16 +452,94 @@ func AddGenre(c *gin.Context) {
 func AddMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
 	userId, _ := c.Get("userId")
 	newMovie := dto.NewMovie{}
-	c.ShouldBind(&newMovie)
-	err := models.AddMovie(newMovie, int(userId.(float64)))
+	err := c.ShouldBind(&newMovie)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Invalid input",
+		})
+		return
+	}
+
+	allowedExts := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+	}
+
+	posterFile, _ := c.FormFile("poster")
+	posterFileName := ""
+	if posterFile != nil {
+		if posterFile.Size > 5*1024*1024 {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "File is too large",
+			})
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(posterFile.Filename))
+
+		if !allowedExts[ext] {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+			})
+			return
+		}
+		fileExt := filepath.Ext(posterFile.Filename)
+		posterFileName = uuid.New().String() + fileExt
+		err := c.SaveUploadedFile(posterFile, "./uploads/poster/"+posterFileName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to save uploaded file",
+			})
+			return
+		}
+		newMovie.Poster = &posterFileName
+	}
+
+	backdrop, _ := c.FormFile("backdrop")
+	backdropName := ""
+	if backdrop != nil {
+		if backdrop.Size > 5*1024*1024 {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "File is too large",
+			})
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(backdrop.Filename))
+
+		if !allowedExts[ext] {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+			})
+			return
+		}
+		fileExt := filepath.Ext(backdrop.Filename)
+		backdropName = uuid.New().String() + fileExt
+		err := c.SaveUploadedFile(backdrop, "./uploads/backdrop/"+backdropName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to save uploaded file",
+			})
+			return
+		}
+		newMovie.Backdrop = &backdropName
+	}
+
+	err = models.AddMovie(newMovie, int(userId.(float64)))
 	if err != nil {
 		if err.Error() == "new movie data should not be empty" {
 			c.JSON(http.StatusBadRequest, utils.Response{
@@ -481,11 +571,19 @@ func AddMovie(c *gin.Context) {
 // @Summary Update a movie
 // @Description Update a movie's details and associated genres, directors, and casts (admin only)
 // @Tags Admin: Movies
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Security BearerAuth
-// @Param id path int true "Movie ID"
-// @Param movie body dto.NewMovie true "Movie data"
+// @Param title formData string true "Movie title"
+// @Param synopsis formData string true "Movie synopsis"
+// @Param releaseDate formData string true "Release date (YYYY-MM-DD)"
+// @Param price formData number true "Ticket price"
+// @Param runtime formData int true "Duration in minutes"
+// @Param genres formData string true "Comma-separated genre IDs"
+// @Param directors formData string true "Comma-separated director IDs"
+// @Param casts formData string true "Comma-separated cast IDs"
+// @Param poster formData file true "Poster image"
+// @Param backdrop formData file true "Backdrop image"
 // @Success 200 {object} utils.Response "Movie updated successfully"
 // @Failure 400 {object} utils.Response "Bad request (e.g., invalid input)"
 // @Failure 401 {object} utils.Response "Unauthorized access (requires admin role)"
@@ -494,16 +592,94 @@ func AddMovie(c *gin.Context) {
 func UpdateMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
 	movieId, _ := strconv.Atoi(c.Param("id"))
 	updateMovie := dto.NewMovie{}
-	c.ShouldBind(&updateMovie)
-	err := models.UpdateMovie(updateMovie, movieId)
+	err := c.ShouldBind(&updateMovie)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Invalid input",
+		})
+		return
+	}
+
+	allowedExts := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+	}
+
+	posterFile, _ := c.FormFile("poster")
+	posterFileName := ""
+	if posterFile != nil {
+		if posterFile.Size > 5*1024*1024 {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "File is too large",
+			})
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(posterFile.Filename))
+
+		if !allowedExts[ext] {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+			})
+			return
+		}
+		fileExt := filepath.Ext(posterFile.Filename)
+		posterFileName = uuid.New().String() + fileExt
+		err := c.SaveUploadedFile(posterFile, "./uploads/poster/"+posterFileName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to save uploaded file",
+			})
+			return
+		}
+		updateMovie.Poster = &posterFileName
+	}
+
+	backdrop, _ := c.FormFile("backdrop")
+	backdropName := ""
+	if backdrop != nil {
+		if backdrop.Size > 5*1024*1024 {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "File is too large",
+			})
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(backdrop.Filename))
+
+		if !allowedExts[ext] {
+			c.JSON(http.StatusBadRequest, utils.Response{
+				Success: false,
+				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+			})
+			return
+		}
+		fileExt := filepath.Ext(backdrop.Filename)
+		backdropName = uuid.New().String() + fileExt
+		err := c.SaveUploadedFile(backdrop, "./uploads/backdrop/"+backdropName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response{
+				Success: false,
+				Message: "Failed to save uploaded file",
+			})
+			return
+		}
+		updateMovie.Backdrop = &backdropName
+	}
+
+	err = models.UpdateMovie(updateMovie, movieId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
@@ -539,9 +715,9 @@ func UpdateMovie(c *gin.Context) {
 func DeleteMovie(c *gin.Context) {
 	role, _ := c.Get("role")
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, utils.Response{
+		c.JSON(http.StatusForbidden, utils.Response{
 			Success: false,
-			Message: "Unauthorized",
+			Message: "Forbidden",
 		})
 		return
 	}
