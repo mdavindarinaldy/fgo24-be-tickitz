@@ -1535,7 +1535,7 @@ const docTemplate = `{
                     {
                         "type": "file",
                         "description": "Profile picture",
-                        "name": "file",
+                        "name": "profilePicture",
                         "in": "formData"
                     }
                 ],

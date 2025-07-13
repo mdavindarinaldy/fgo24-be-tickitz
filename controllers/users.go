@@ -24,7 +24,7 @@ import (
 // @Param password formData string false "New Password"
 // @Param confirmPassword formData string false "Confirm New Password"
 // @Param phone formData string false "Phone number"
-// @Param file formData file false "Profile picture"
+// @Param profilePicture formData file false "Profile picture"
 // @Success 200 {object} utils.Response{result=dto.UpdateUserResult} "User data updated successfully"
 // @Failure 400 {object} utils.Response{errors=string} "Bad request (e.g., invalid input, email/phone already used, password mismatch)"
 // @Failure 401 {object} utils.Response "Unauthorized"
@@ -43,7 +43,7 @@ func UpdateUser(c *gin.Context) {
 	var request dto.UpdateUserRequest
 	c.ShouldBind(&request)
 
-	file, _ := c.FormFile("file")
+	file, _ := c.FormFile("profilePicture")
 	fileName := ""
 	if file != nil {
 		if file.Size > 2*1024*1024 {
