@@ -15,56 +15,33 @@ import (
 func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageData, error) {
 	conn, err := utils.DBConnect()
 	if err != nil {
-		return []dto.Movie{}, utils.PageData{}, err
+		return nil, utils.PageData{}, err
 	}
 	defer conn.Close()
 
-	type Count struct {
-		Title string `db:"title"`
+	if page < 1 {
+		page = 1
 	}
+	limit := 10
+	offset := (page - 1) * limit
 
-	count, err := conn.Query(context.Background(),
-		`
-		SELECT m.title FROM movies m
+	var totalData int
+	err = conn.QueryRow(context.Background(), `
+		SELECT COUNT(DISTINCT m.id)
+		FROM movies m
 		JOIN movies_genres mg ON mg.id_movie = m.id
 		JOIN genres g ON g.id = mg.id_genre
 		WHERE m.title ILIKE $1 AND g.name ILIKE $2
-		`, "%"+search+"%", "%"+filter+"%")
-
+	`, "%"+search+"%", "%"+filter+"%").Scan(&totalData)
 	if err != nil {
-		return []dto.Movie{}, utils.PageData{}, err
+		return nil, utils.PageData{}, err
 	}
 
-	data, err := pgx.CollectRows[Count](count, pgx.RowToStructByName)
-	if err != nil {
-		return []dto.Movie{}, utils.PageData{}, err
-	}
+	totalPage := (totalData + limit - 1) / limit
 
-	limit := 10
-	offset := (page - 1) * limit
-	if page == 0 {
-		page = 1
-	} else if ((page * limit) - len(data)) < limit {
-		page = 1
-	}
-
-	totalPage := 0
-	if len(data)%limit != 0 {
-		totalPage = (len(data) / limit) + 1
-	} else {
-		totalPage = len(data) / limit
-	}
-
-	pageData := utils.PageData{
-		TotalData:   len(data),
-		TotalPage:   totalPage,
-		CurrentPage: page,
-	}
-
-	rows, err := conn.Query(context.Background(),
-		`
+	rows, err := conn.Query(context.Background(), `
 		WITH genres_agg AS (
-    		SELECT mg.id_movie, string_agg(DISTINCT g.name, ', ') AS genres
+			SELECT mg.id_movie, string_agg(DISTINCT g.name, ', ') AS genres
 			FROM movies_genres mg
 			JOIN genres g ON g.id = mg.id_genre
 			GROUP BY mg.id_movie
@@ -82,35 +59,32 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 			GROUP BY mc.id_movie
 		)
 		SELECT
-			m.id, 
-			m.title, 
-			m.synopsis, 
-			m.release_date, 
-			m.price, 
-			m.runtime, 
-			m.poster, 
-			m.backdrop, 
-			g.genres, 
-			d.directors, 
-			c.casts
+			m.id, m.title, m.synopsis, m.release_date, m.price, m.runtime,
+			m.poster, m.backdrop,
+			g.genres, d.directors, c.casts
 		FROM movies m
 		LEFT JOIN genres_agg g ON m.id = g.id_movie
 		LEFT JOIN directors_agg d ON m.id = d.id_movie
 		LEFT JOIN casts_agg c ON m.id = c.id_movie
 		WHERE m.title ILIKE $1 AND g.genres ILIKE $2
-		OFFSET $3
-		LIMIT $4;
-		`, "%"+search+"%", "%"+filter+"%", offset, limit)
-
+		OFFSET $3 LIMIT $4
+	`, "%"+search+"%", "%"+filter+"%", offset, limit)
 	if err != nil {
-		return []dto.Movie{}, utils.PageData{}, err
-	}
-	users, err := pgx.CollectRows[dto.Movie](rows, pgx.RowToStructByName)
-	if err != nil {
-		return []dto.Movie{}, utils.PageData{}, err
+		return nil, utils.PageData{}, err
 	}
 
-	return users, pageData, nil
+	movies, err := pgx.CollectRows[dto.Movie](rows, pgx.RowToStructByName)
+	if err != nil {
+		return nil, utils.PageData{}, err
+	}
+
+	pageData := utils.PageData{
+		TotalData:   totalData,
+		TotalPage:   totalPage,
+		CurrentPage: page,
+	}
+
+	return movies, pageData, nil
 }
 
 func GetMovie(id int) (dto.Movie, error) {

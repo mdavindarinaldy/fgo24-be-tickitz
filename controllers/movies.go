@@ -68,7 +68,7 @@ func GetMovies(c *gin.Context) {
 		str := data.Val()
 		movies := []dto.Movie{}
 		pageData := page.Val()
-		pageResult := []utils.PageData{}
+		pageResult := utils.PageData{}
 
 		json.Unmarshal([]byte(str), &movies)
 		json.Unmarshal([]byte(pageData), &pageResult)
