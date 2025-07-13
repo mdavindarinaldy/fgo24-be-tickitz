@@ -31,6 +31,9 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	r.Static("/uploads/profiles", "./uploads/profiles")
+	r.Static("/uploads/posters", "./uploads/posters")
+	r.Static("/uploads/backdrops", "./uploads/backdrops")
 	routers.CombineRouter(r)
 	r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }
