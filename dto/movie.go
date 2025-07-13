@@ -22,8 +22,8 @@ type NewMovie struct {
 	ReleaseDate string  `form:"releaseDate" json:"releaseDate" db:"release_date"`
 	Price       float64 `form:"price" json:"price" db:"price"`
 	Runtime     int     `form:"runtime" json:"runtime" db:"runtime"`
-	Poster      *string `form:"poster" json:"poster" db:"poster"`
-	Backdrop    *string `form:"backdrop" json:"backdrop" db:"backdrop"`
+	Poster      *string `json:"poster"`
+	Backdrop    *string `json:"backdrop"`
 	Genres      string  `form:"genres" json:"genres" db:"genres"`
 	Directors   string  `form:"directors" json:"directors" db:"directors"`
 	Casts       string  `form:"casts" json:"casts" db:"casts"`

@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
 )
 
@@ -464,13 +465,15 @@ func AddMovie(c *gin.Context) {
 		})
 		return
 	}
+
 	userId, _ := c.Get("userId")
 	newMovie := dto.NewMovie{}
-	err := c.ShouldBind(&newMovie)
-	if err != nil {
+
+	if err := c.ShouldBindWith(&newMovie, binding.FormMultipart); err != nil {
 		c.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "Invalid input",
+			Errors:  err.Error(),
 		})
 		return
 	}
@@ -482,94 +485,91 @@ func AddMovie(c *gin.Context) {
 	}
 
 	posterFile, _ := c.FormFile("poster")
-	posterFileName := ""
 	if posterFile != nil {
 		if posterFile.Size > 5*1024*1024 {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
-				Message: "File is too large",
+				Message: "Poster file is too large",
 			})
 			return
 		}
 		ext := strings.ToLower(filepath.Ext(posterFile.Filename))
-
 		if !allowedExts[ext] {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
-				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+				Message: "Invalid poster file type",
 			})
 			return
 		}
-		fileExt := filepath.Ext(posterFile.Filename)
-		posterFileName = uuid.New().String() + fileExt
+		posterFileName := uuid.New().String() + ext
 		err := c.SaveUploadedFile(posterFile, "./uploads/poster/"+posterFileName)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, utils.Response{
 				Success: false,
-				Message: "Failed to save uploaded file",
+				Message: "Failed to save poster file",
 			})
 			return
 		}
 		newMovie.Poster = &posterFileName
 	}
 
-	backdrop, _ := c.FormFile("backdrop")
-	backdropName := ""
-	if backdrop != nil {
-		if backdrop.Size > 5*1024*1024 {
+	backdropFile, _ := c.FormFile("backdrop")
+	if backdropFile != nil {
+		if backdropFile.Size > 5*1024*1024 {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
-				Message: "File is too large",
+				Message: "Backdrop file is too large",
 			})
 			return
 		}
-		ext := strings.ToLower(filepath.Ext(backdrop.Filename))
-
+		ext := strings.ToLower(filepath.Ext(backdropFile.Filename))
 		if !allowedExts[ext] {
 			c.JSON(http.StatusBadRequest, utils.Response{
 				Success: false,
-				Message: "Invalid file type. Only JPG, JPEG, PNG allowed",
+				Message: "Invalid backdrop file type",
 			})
 			return
 		}
-		fileExt := filepath.Ext(backdrop.Filename)
-		backdropName = uuid.New().String() + fileExt
-		err := c.SaveUploadedFile(backdrop, "./uploads/backdrop/"+backdropName)
+		backdropFileName := uuid.New().String() + ext
+		err := c.SaveUploadedFile(backdropFile, "./uploads/backdrop/"+backdropFileName)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, utils.Response{
 				Success: false,
-				Message: "Failed to save uploaded file",
+				Message: "Failed to save backdrop file",
 			})
 			return
 		}
-		newMovie.Backdrop = &backdropName
+		newMovie.Backdrop = &backdropFileName
 	}
 
-	err = models.AddMovie(newMovie, int(userId.(float64)))
-	if err != nil {
-		if err.Error() == "new movie data should not be empty" {
-			c.JSON(http.StatusBadRequest, utils.Response{
-				Success: false,
-				Message: err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, utils.Response{
+	if newMovie.Title == "" || newMovie.Synopsis == "" || newMovie.ReleaseDate == "" || newMovie.Price == 0 || newMovie.Runtime == 0 || newMovie.Poster == nil || newMovie.Backdrop == nil || newMovie.Genres == "" || newMovie.Directors == "" || newMovie.Casts == "" {
+		c.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
-			Message: "Internal server error",
+			Message: "new movie data should not be empty",
 		})
 		return
 	}
-	c.JSON(http.StatusCreated, utils.Response{
-		Success: true,
-		Message: "Success to add new movie",
-	})
+
+	err := models.AddMovie(newMovie, int(userId.(float64)))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+
 	rdClient := utils.RedisConnect()
 	keys := rdClient.Keys(context.Background(), "/movies?*").Val()
 	for _, key := range keys {
 		rdClient.Del(context.Background(), key)
 	}
 	rdClient.Del(context.Background(), "/movies/upcoming")
+
+	c.JSON(http.StatusCreated, utils.Response{
+		Success: true,
+		Message: "Success to add new movie",
+	})
 }
 
 // UpdateMovieHandler updates an existing movie
