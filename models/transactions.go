@@ -213,10 +213,17 @@ func GetReservedSeat(req dto.ReservedSeatsRequest) (dto.ReservedSeatsResponse, e
          AND showtime = $5`,
 		req.MovieId, req.Cinema, req.Location, req.Date, req.Showtime).Scan(&showtimeID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return dto.ReservedSeatsResponse{
+				ShowtimeId: 0,
+				Seats:      "",
+			}, nil
+		}
 		return dto.ReservedSeatsResponse{}, err
 	}
+
 	row, err := conn.Query(context.Background(), `
-		SELECT id_showtime, string_agg(seat,', ') AS seats 
+		SELECT id_showtime, string_agg(seat, ', ') AS seats 
 		FROM transactions_detail 
 		WHERE id_showtime = $1
 		GROUP BY id_showtime`, showtimeID)
@@ -224,12 +231,19 @@ func GetReservedSeat(req dto.ReservedSeatsRequest) (dto.ReservedSeatsResponse, e
 		return dto.ReservedSeatsResponse{}, err
 	}
 
-	reservedSeats, err := pgx.CollectOneRow[dto.ReservedSeatsResponse](row, pgx.RowToStructByName)
+	var reservedSeats dto.ReservedSeatsResponse
+	reservedSeats, err = pgx.CollectOneRow[dto.ReservedSeatsResponse](row, pgx.RowToStructByName)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return dto.ReservedSeatsResponse{
+				ShowtimeId: showtimeID,
+				Seats:      "",
+			}, nil
+		}
 		return dto.ReservedSeatsResponse{}, err
 	}
 
-	return reservedSeats, err
+	return reservedSeats, nil
 }
 
 func GetSalesPerMovie() ([]dto.SalesPerMovie, error) {

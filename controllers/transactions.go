@@ -213,6 +213,7 @@ func GetReservedSeat(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Failed to get data reserved seats",
+			Errors:  err.Error(),
 		})
 		return
 	}
