@@ -158,7 +158,8 @@ func GetTransactionsHistory(userId int) ([]dto.TransactionHistory, error) {
 		JOIN showtimes s ON s.id = td.id_showtime
 		JOIN movies m ON m.id = s.id_movie
 		WHERE t.id_user=$1
-		GROUP BY m.id, t.id, s.id;`, userId)
+		GROUP BY m.id, t.id, s.id
+		ORDER BY t.created_at DESC;`, userId)
 	if err != nil {
 		return []dto.TransactionHistory{}, err
 	}
