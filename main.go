@@ -32,8 +32,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 	r.Static("/uploads/profiles", "./uploads/profiles")
-	r.Static("/uploads/posters", "./uploads/posters")
-	r.Static("/uploads/backdrops", "./uploads/backdrops")
+	r.Static("/uploads/poster", "./uploads/poster")
+	r.Static("/uploads/backdrop", "./uploads/backdrop")
 	routers.CombineRouter(r)
 	r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }
