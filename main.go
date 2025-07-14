@@ -28,6 +28,9 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	r.OPTIONS("/*path", func(c *gin.Context) {
+		c.Status(204)
+	})
 	db, _ := utils.DBConnect()
 	godotenv.Load()
 	defer db.Close()
