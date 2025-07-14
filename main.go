@@ -20,9 +20,6 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token
 func main() {
-	db, _ := utils.DBConnect()
-	godotenv.Load()
-	defer db.Close()
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://146.190.102.54:9602", "http://localhost:8080"},
@@ -31,6 +28,9 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	db, _ := utils.DBConnect()
+	godotenv.Load()
+	defer db.Close()
 	r.Static("/uploads/profiles", "./uploads/profiles")
 	r.Static("/uploads/poster", "./uploads/poster")
 	r.Static("/uploads/backdrop", "./uploads/backdrop")
