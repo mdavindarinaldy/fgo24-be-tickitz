@@ -18,7 +18,7 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token
 func main() {
-	r := gin.New()
+	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://146.190.102.54:9602", "http://localhost:8080"},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},
