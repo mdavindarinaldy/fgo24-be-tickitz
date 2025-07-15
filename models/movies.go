@@ -31,8 +31,8 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 		FROM movies m
 		JOIN movies_genres mg ON mg.id_movie = m.id
 		JOIN genres g ON g.id = mg.id_genre
-		WHERE m.title ILIKE $1 AND g.name ILIKE $2
-	`, "%"+search+"%", "%"+filter+"%").Scan(&totalData)
+		WHERE m.title ILIKE $1 AND g.name ILIKE $2 AND m.release_date<$3
+	`, "%"+search+"%", "%"+filter+"%", time.Now()).Scan(&totalData)
 	if err != nil {
 		return nil, utils.PageData{}, err
 	}
@@ -66,9 +66,9 @@ func GetMovies(search string, filter string, page int) ([]dto.Movie, utils.PageD
 		LEFT JOIN genres_agg g ON m.id = g.id_movie
 		LEFT JOIN directors_agg d ON m.id = d.id_movie
 		LEFT JOIN casts_agg c ON m.id = c.id_movie
-		WHERE m.title ILIKE $1 AND g.genres ILIKE $2
-		OFFSET $3 LIMIT $4
-	`, "%"+search+"%", "%"+filter+"%", offset, limit)
+		WHERE m.title ILIKE $1 AND g.genres ILIKE $2 AND m.release_date<$3
+		OFFSET $4 LIMIT $5
+	`, "%"+search+"%", "%"+filter+"%", time.Now(), offset, limit)
 	if err != nil {
 		return nil, utils.PageData{}, err
 	}
