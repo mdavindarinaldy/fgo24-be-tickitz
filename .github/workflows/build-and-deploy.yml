@@ -42,7 +42,7 @@ jobs:
                 port: ${{ secrets.PORT }}
                 script: |
                  cd /home/naldy/fgo24-be-tickitz
-                 docker pull ghcr.io/${{ github.repository }}:latest
+                 docker pull ghcr.io/mdavindarinaldy/fgo24-be-tickitz:latest
                  docker compose up -d postgres redis
                  docker run --rm \
                     --network fgo24-be-tickitz_netapp \
