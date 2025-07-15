@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // @title CRUD
@@ -19,8 +20,9 @@ import (
 // @description Type "Bearer" followed by a space and JWT token
 func main() {
 	r := gin.Default()
+	godotenv.Load()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://146.190.102.54:9602", "http://localhost:8080"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
