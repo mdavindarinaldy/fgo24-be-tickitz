@@ -158,8 +158,8 @@ erDiagram
 | PATCH  | /auth/pass | Change password with OTP | No | - |
 | PATCH  | /auth/pass | Change password with OTP | No | - |
 | POST  | /auth/logout | Logout | Yes | User/Admin |
-| PATCH  | /user | Update user's data | Yes | User |
-| GET  | /user | Get user's data | Yes | User |
+| PATCH  | /profile | Update user's data | Yes | User |
+| GET  | /profile | Get user's data | Yes | User |
 | GET  | /movies | Get all movies data | No | - |
 | GET  | /movies/:id | Get one movie data | No | - |
 | GET  | /movies/upcoming | Get all upcoming movie | No | - |
